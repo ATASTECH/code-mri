@@ -1,0 +1,10 @@
+# Code MRI self-scan governance config.
+# Test files and fixtures contain intentional bad-code samples (orphan
+# components, dummy secrets, uncalled endpoints) used to exercise the
+# detectors; exclude them from risk issues so self-scans reflect reality.
+risk:
+  ignorePaths:
+    - "**/*.test.ts"
+    - "**/test/fixtures/**"
+    - "**/tests/fixtures/**"
+    - "**/bench/**"

@@ -361,7 +361,7 @@ export async function analyzeProjectRepos(
     ];
   });
   const graphNodes = insights.nodes;
-  const issues = filterIgnoredRiskIssues(rawIssues, graphNodes, config);
+  const issues = filterIgnoredRiskIssues(rawIssues, graphNodes, config, graph.edges());
   const scores = computeHealth(issues);
   const repos = repoAnalyses.map((analysis) => analysis.repo);
   const report: Report = {

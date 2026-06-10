@@ -1,4 +1,4 @@
-import type { GraphNode, Issue } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, Issue } from "@code-mri/shared-types";
 import { describe, expect, test } from "vitest";
 import { parseCodeMriConfig } from "../config/codemri.js";
 import { filterIgnoredRiskIssues } from "./filterIssues.js";
@@ -31,5 +31,44 @@ describe("filterIgnoredRiskIssues", () => {
     const issues = [issue("BOUNDARY_VIOLATION", ["File:examples/demo.ts", "File:src/app.ts"])];
 
     expect(filterIgnoredRiskIssues(issues, nodes, config)).toHaveLength(1);
+  });
+
+  test("resolves files through edges for location-less nodes like API endpoints", () => {
+    const config = parseCodeMriConfig({ risk: { ignorePaths: "test/fixtures/**" } });
+    const graphNodes: GraphNode[] = [
+      ...nodes,
+      { id: "APIEndpoint:GET /api/users", kind: "APIEndpoint", name: "GET /api/users" },
+      {
+        id: "Function:test/fixtures/views.py#list_users",
+        kind: "Function",
+        name: "list_users",
+        loc: { file: "test/fixtures/views.py", line: 1 },
+      },
+    ];
+    const edges: GraphEdge[] = [
+      {
+        id: "e1",
+        kind: "EXPOSES",
+        from: "Function:test/fixtures/views.py#list_users",
+        to: "APIEndpoint:GET /api/users",
+      },
+    ];
+    const issues = [issue("UNUSED_ENDPOINT", ["APIEndpoint:GET /api/users"])];
+
+    expect(filterIgnoredRiskIssues(issues, graphNodes, config, edges)).toHaveLength(0);
+  });
+
+  test("keeps location-less node issues when an edge neighbor is outside ignored paths", () => {
+    const config = parseCodeMriConfig({ risk: { ignorePaths: "test/fixtures/**" } });
+    const graphNodes: GraphNode[] = [
+      ...nodes,
+      { id: "APIEndpoint:GET /api/users", kind: "APIEndpoint", name: "GET /api/users" },
+    ];
+    const edges: GraphEdge[] = [
+      { id: "e1", kind: "EXPOSES", from: "Function:src/app.ts#run", to: "APIEndpoint:GET /api/users" },
+    ];
+    const issues = [issue("UNUSED_ENDPOINT", ["APIEndpoint:GET /api/users"])];
+
+    expect(filterIgnoredRiskIssues(issues, graphNodes, config, edges)).toHaveLength(1);
   });
 });

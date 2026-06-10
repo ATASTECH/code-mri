@@ -144,7 +144,7 @@ export async function analyzeProject(
   });
 
   const nodes = insights.nodes;
-  const issues = filterIgnoredRiskIssues(rawIssues, nodes, config);
+  const issues = filterIgnoredRiskIssues(rawIssues, nodes, config, graph.edges());
   const scores = computeHealth(issues);
   const report: Report = {
     schemaVersion: REPORT_SCHEMA_VERSION,
