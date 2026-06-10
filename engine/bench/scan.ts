@@ -36,6 +36,7 @@ function parseArgs(argv: string[]): BenchArgs {
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
+    if (arg === undefined) continue;
     if (arg === "--repeat") args.repeat = Math.max(1, Number(argv[++i]) || 1);
     else if (arg === "--python") args.python = argv[++i];
     else if (arg === "--openapi") args.openapi = argv[++i];

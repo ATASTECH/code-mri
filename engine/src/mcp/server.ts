@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import * as path from "node:path";
 import type { ProjectRepoRole, Report } from "@code-mri/shared-types";
 import {
@@ -14,6 +15,9 @@ import {
 } from "../agent/index.js";
 import { analyzeProject } from "../pipeline/analyze.js";
 import { analyzeProjectRepos, type ProjectRepoInput } from "../pipeline/analyzeRepos.js";
+
+const ENGINE_VERSION =
+  (createRequire(import.meta.url)("../../package.json") as { version?: string }).version ?? "0.0.0";
 
 interface JsonRpcRequest {
   jsonrpc?: "2.0";
@@ -507,7 +511,7 @@ export async function handleMcpRequest(
         result: {
           protocolVersion: "2024-11-05",
           capabilities: { tools: {} },
-          serverInfo: { name: "code-mri", version: "0.0.0" },
+          serverInfo: { name: "code-mri", version: ENGINE_VERSION },
         },
       };
     }
@@ -552,9 +556,13 @@ export async function handleMcpRequest(
   }
 }
 
-function encodeMessage(message: JsonRpcResponse): string {
+function encodeMessage(message: JsonRpcResponse, contentLengthFraming: boolean): string {
   const body = JSON.stringify(message);
-  return `Content-Length: ${Buffer.byteLength(body, "utf8")}\r\n\r\n${body}`;
+  // MCP stdio transport is newline-delimited JSON; Content-Length framing is
+  // kept only for legacy LSP-style clients that send it first.
+  return contentLengthFraming
+    ? `Content-Length: ${Buffer.byteLength(body, "utf8")}\r\n\r\n${body}`
+    : `${body}\n`;
 }
 
 export function startMcpServer(input: {
@@ -573,10 +581,11 @@ export function startMcpServer(input: {
   const stdout = input.stdout ?? process.stdout;
   let buffer = "";
   let queue = Promise.resolve();
+  let contentLengthFraming = false;
 
   function send(response: JsonRpcResponse | null): void {
     if (!response) return;
-    stdout.write(encodeMessage(response));
+    stdout.write(encodeMessage(response, contentLengthFraming));
   }
 
   async function handleRaw(raw: string): Promise<void> {
@@ -605,6 +614,7 @@ export function startMcpServer(input: {
         headerEnd >= 0 ? headerEnd : altHeaderEnd >= 0 ? altHeaderEnd : -1;
 
       if (splitAt >= 0 && /^Content-Length:/i.test(buffer.slice(0, splitAt))) {
+        contentLengthFraming = true;
         const header = buffer.slice(0, splitAt);
         const lengthMatch = header.match(/Content-Length:\s*(\d+)/i);
         if (!lengthMatch) throw new Error("Invalid MCP Content-Length header");
