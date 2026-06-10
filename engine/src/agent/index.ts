@@ -1,0 +1,27 @@
+export {
+  askGraph,
+  checkBreakingChanges,
+  createAgentQueryContext,
+  findDeadCode,
+  getNodeContext,
+  graphSearch,
+  impactQuery,
+  nodeReference,
+  planGraphQuestion,
+  recommendTests,
+} from "./query.js";
+export type {
+  AgentEdgeReference,
+  AgentIssueReference,
+  AgentNodeReference,
+  AgentTestCommand,
+  AgentQueryContext,
+  AgentToolResult,
+  AskGraphInput,
+  CheckBreakingChangesInput,
+  FindDeadCodeInput,
+  GetNodeContextInput,
+  GraphSearchInput,
+  ImpactQueryInput,
+  RecommendTestsInput,
+} from "./query.js";

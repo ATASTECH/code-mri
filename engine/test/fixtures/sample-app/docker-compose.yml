@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+
+  celery:
+    build: ./backend
+    command: celery -A config worker -l info
+    depends_on:
+      - redis

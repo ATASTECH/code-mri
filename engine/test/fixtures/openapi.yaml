@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info:
+  title: Code MRI fixture API
+  version: 1.0.0
+paths:
+  /api/users/{id}/:
+    get:
+      operationId: getUser
+      summary: Read one user
+  /api/health/:
+    get:
+      operationId: healthCheck
+      summary: Health check

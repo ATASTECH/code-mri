@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.DS_Store
+# python sidecar
+__pycache__/
+*.pyc
+.venv/
+# tauri
+apps/desktop/src-tauri/target/
+# scan outputs
+*.code-mri.json
+.code-mri/
+TASKS.md
+.claude/
+.claude-flow/
+.playwright-mcp/
+.vscode/

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": false,
+    "noEmit": false,
+    "outDir": "dist",
+    "paths": {
+      "@code-mri/shared-types": ["packages/shared-types/dist/index.d.ts"]
+    },
+    "rootDir": "src",
+    "sourceMap": true
+  },
+  "exclude": ["src/**/*.test.ts"]
+}

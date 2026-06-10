@@ -1,0 +1,746 @@
+{
+  "schemaVersion": 4,
+  "project": {
+    "name": "sample-app",
+    "stack": [
+      "django",
+      "docker",
+      "next.js",
+      "react",
+      "typescript"
+    ],
+    "root": "<fixture>"
+  },
+  "summary": {
+    "files": 16,
+    "components": 2,
+    "models": 1,
+    "endpoints": 6
+  },
+  "nodes": [
+    {
+      "id": "File:backend/config/settings.py",
+      "kind": "File",
+      "name": "backend/config/settings.py",
+      "loc": {
+        "file": "backend/config/settings.py"
+      }
+    },
+    {
+      "id": "File:backend/config/urls.py",
+      "kind": "File",
+      "name": "backend/config/urls.py",
+      "loc": {
+        "file": "backend/config/urls.py"
+      }
+    },
+    {
+      "id": "File:backend/manage.py",
+      "kind": "File",
+      "name": "backend/manage.py",
+      "loc": {
+        "file": "backend/manage.py"
+      }
+    },
+    {
+      "id": "File:backend/users/__init__.py",
+      "kind": "File",
+      "name": "backend/users/__init__.py",
+      "loc": {
+        "file": "backend/users/__init__.py"
+      }
+    },
+    {
+      "id": "File:backend/users/models.py",
+      "kind": "File",
+      "name": "backend/users/models.py",
+      "loc": {
+        "file": "backend/users/models.py"
+      }
+    },
+    {
+      "id": "File:backend/users/serializers.py",
+      "kind": "File",
+      "name": "backend/users/serializers.py",
+      "loc": {
+        "file": "backend/users/serializers.py"
+      }
+    },
+    {
+      "id": "File:backend/users/tasks.py",
+      "kind": "File",
+      "name": "backend/users/tasks.py",
+      "loc": {
+        "file": "backend/users/tasks.py"
+      }
+    },
+    {
+      "id": "File:backend/users/urls.py",
+      "kind": "File",
+      "name": "backend/users/urls.py",
+      "loc": {
+        "file": "backend/users/urls.py"
+      }
+    },
+    {
+      "id": "File:backend/users/views.py",
+      "kind": "File",
+      "name": "backend/users/views.py",
+      "loc": {
+        "file": "backend/users/views.py"
+      }
+    },
+    {
+      "id": "File:docker-compose.yml",
+      "kind": "File",
+      "name": "docker-compose.yml",
+      "loc": {
+        "file": "docker-compose.yml"
+      }
+    },
+    {
+      "id": "File:frontend/components/Unused.tsx",
+      "kind": "File",
+      "name": "frontend/components/Unused.tsx",
+      "loc": {
+        "file": "frontend/components/Unused.tsx"
+      }
+    },
+    {
+      "id": "File:frontend/components/UserTable.tsx",
+      "kind": "File",
+      "name": "frontend/components/UserTable.tsx",
+      "loc": {
+        "file": "frontend/components/UserTable.tsx"
+      }
+    },
+    {
+      "id": "File:frontend/hooks/useUsers.ts",
+      "kind": "File",
+      "name": "frontend/hooks/useUsers.ts",
+      "loc": {
+        "file": "frontend/hooks/useUsers.ts"
+      }
+    },
+    {
+      "id": "File:frontend/lib/api.ts",
+      "kind": "File",
+      "name": "frontend/lib/api.ts",
+      "loc": {
+        "file": "frontend/lib/api.ts"
+      }
+    },
+    {
+      "id": "File:frontend/package.json",
+      "kind": "File",
+      "name": "frontend/package.json",
+      "loc": {
+        "file": "frontend/package.json"
+      }
+    },
+    {
+      "id": "File:frontend/pages/users.tsx",
+      "kind": "File",
+      "name": "frontend/pages/users.tsx",
+      "loc": {
+        "file": "frontend/pages/users.tsx"
+      }
+    },
+    {
+      "id": "Component:frontend/components/Unused.tsx#Unused",
+      "kind": "Component",
+      "name": "Unused",
+      "loc": {
+        "file": "frontend/components/Unused.tsx",
+        "line": 4
+      },
+      "meta": {
+        "exported": true,
+        "fieldReads": []
+      }
+    },
+    {
+      "id": "Component:frontend/components/UserTable.tsx#UserTable",
+      "kind": "Component",
+      "name": "UserTable",
+      "loc": {
+        "file": "frontend/components/UserTable.tsx",
+        "line": 9
+      },
+      "meta": {
+        "exported": true,
+        "fieldReads": [
+          "id",
+          "email",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "Type:frontend/components/UserTable.tsx#User",
+      "kind": "Type",
+      "name": "User",
+      "loc": {
+        "file": "frontend/components/UserTable.tsx",
+        "line": 3
+      },
+      "meta": {
+        "exported": false,
+        "typeKind": "interface",
+        "fields": [
+          "id",
+          "email",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "kind": "Hook",
+      "name": "useUsersQuery",
+      "loc": {
+        "file": "frontend/hooks/useUsers.ts",
+        "line": 5
+      },
+      "meta": {
+        "exported": true,
+        "fieldReads": [
+          "id",
+          "email",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "Page:frontend/pages/users.tsx#UsersPage",
+      "kind": "Page",
+      "name": "UsersPage",
+      "loc": {
+        "file": "frontend/pages/users.tsx",
+        "line": 5
+      },
+      "meta": {
+        "exported": true,
+        "fieldReads": []
+      }
+    },
+    {
+      "id": "DockerService:docker-compose.yml#backend",
+      "kind": "DockerService",
+      "name": "backend",
+      "loc": {
+        "file": "docker-compose.yml"
+      },
+      "meta": {
+        "ports": [
+          "8000:8000"
+        ],
+        "build": "./backend",
+        "environment": [
+          "POSTGRES_HOST=postgres",
+          "REDIS_URL=redis://redis:6379/0"
+        ]
+      }
+    },
+    {
+      "id": "DockerService:docker-compose.yml#postgres",
+      "kind": "DockerService",
+      "name": "postgres",
+      "loc": {
+        "file": "docker-compose.yml"
+      },
+      "meta": {
+        "ports": [
+          "5432:5432"
+        ],
+        "image": "postgres:16"
+      }
+    },
+    {
+      "id": "DockerService:docker-compose.yml#redis",
+      "kind": "DockerService",
+      "name": "redis",
+      "loc": {
+        "file": "docker-compose.yml"
+      },
+      "meta": {
+        "ports": [],
+        "image": "redis:7"
+      }
+    },
+    {
+      "id": "DockerService:docker-compose.yml#celery",
+      "kind": "DockerService",
+      "name": "celery",
+      "loc": {
+        "file": "docker-compose.yml"
+      },
+      "meta": {
+        "ports": [],
+        "build": "./backend",
+        "command": "celery -A config worker -l info"
+      }
+    },
+    {
+      "id": "Function:backend/manage.py#main",
+      "kind": "Function",
+      "name": "main",
+      "loc": {
+        "file": "backend/manage.py",
+        "line": 6
+      },
+      "meta": {
+        "owner": null,
+        "ownerKind": "module"
+      }
+    },
+    {
+      "id": "Function:backend/users/models.py#User.__str__",
+      "kind": "Function",
+      "name": "User.__str__",
+      "loc": {
+        "file": "backend/users/models.py",
+        "line": 9
+      },
+      "meta": {
+        "owner": "User",
+        "ownerKind": "class"
+      }
+    },
+    {
+      "id": "Function:backend/users/tasks.py#send_welcome_email",
+      "kind": "Function",
+      "name": "send_welcome_email",
+      "loc": {
+        "file": "backend/users/tasks.py",
+        "line": 5
+      },
+      "meta": {
+        "owner": null,
+        "ownerKind": "module"
+      }
+    },
+    {
+      "id": "Model:backend/users/models.py#User",
+      "kind": "Model",
+      "name": "User",
+      "loc": {
+        "file": "backend/users/models.py",
+        "line": 4
+      }
+    },
+    {
+      "id": "Field:backend/users/models.py#User#email",
+      "kind": "Field",
+      "name": "email",
+      "loc": {
+        "file": "backend/users/models.py",
+        "line": 5
+      },
+      "meta": {
+        "type": "EmailField",
+        "options": {
+          "unique": true
+        }
+      }
+    },
+    {
+      "id": "Field:backend/users/models.py#User#name",
+      "kind": "Field",
+      "name": "name",
+      "loc": {
+        "file": "backend/users/models.py",
+        "line": 6
+      },
+      "meta": {
+        "type": "CharField",
+        "options": {
+          "max_length": 200
+        }
+      }
+    },
+    {
+      "id": "Field:backend/users/models.py#User#created_at",
+      "kind": "Field",
+      "name": "created_at",
+      "loc": {
+        "file": "backend/users/models.py",
+        "line": 7
+      },
+      "meta": {
+        "type": "DateTimeField",
+        "options": {
+          "auto_now_add": true
+        }
+      }
+    },
+    {
+      "id": "Serializer:backend/users/serializers.py#UserSerializer",
+      "kind": "Serializer",
+      "name": "UserSerializer",
+      "loc": {
+        "file": "backend/users/serializers.py",
+        "line": 6
+      }
+    },
+    {
+      "id": "ViewSet:backend/users/views.py#UserViewSet",
+      "kind": "ViewSet",
+      "name": "UserViewSet",
+      "loc": {
+        "file": "backend/users/views.py",
+        "line": 7
+      }
+    },
+    {
+      "id": "CeleryTask:backend/users/tasks.py#send_welcome_email",
+      "kind": "CeleryTask",
+      "name": "send_welcome_email",
+      "loc": {
+        "file": "backend/users/tasks.py",
+        "line": 5
+      }
+    },
+    {
+      "id": "APIEndpoint:GET /api/users/",
+      "kind": "APIEndpoint",
+      "name": "GET /api/users/",
+      "meta": {
+        "method": "GET",
+        "path": "/api/users/"
+      }
+    },
+    {
+      "id": "APIEndpoint:POST /api/users/",
+      "kind": "APIEndpoint",
+      "name": "POST /api/users/",
+      "meta": {
+        "method": "POST",
+        "path": "/api/users/"
+      }
+    },
+    {
+      "id": "APIEndpoint:GET /api/users/{id}/",
+      "kind": "APIEndpoint",
+      "name": "GET /api/users/{id}/",
+      "meta": {
+        "method": "GET",
+        "path": "/api/users/{id}/"
+      }
+    },
+    {
+      "id": "APIEndpoint:PUT /api/users/{id}/",
+      "kind": "APIEndpoint",
+      "name": "PUT /api/users/{id}/",
+      "meta": {
+        "method": "PUT",
+        "path": "/api/users/{id}/"
+      }
+    },
+    {
+      "id": "APIEndpoint:PATCH /api/users/{id}/",
+      "kind": "APIEndpoint",
+      "name": "PATCH /api/users/{id}/",
+      "meta": {
+        "method": "PATCH",
+        "path": "/api/users/{id}/"
+      }
+    },
+    {
+      "id": "APIEndpoint:DELETE /api/users/{id}/",
+      "kind": "APIEndpoint",
+      "name": "DELETE /api/users/{id}/",
+      "meta": {
+        "method": "DELETE",
+        "path": "/api/users/{id}/"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "TYPES:Component:frontend/components/UserTable.tsx#UserTable->Type:frontend/components/UserTable.tsx#User",
+      "from": "Component:frontend/components/UserTable.tsx#UserTable",
+      "to": "Type:frontend/components/UserTable.tsx#User",
+      "kind": "TYPES"
+    },
+    {
+      "id": "IMPORTS:File:frontend/hooks/useUsers.ts->File:frontend/lib/api.ts",
+      "from": "File:frontend/hooks/useUsers.ts",
+      "to": "File:frontend/lib/api.ts",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "IMPORTS:File:frontend/pages/users.tsx->File:frontend/hooks/useUsers.ts",
+      "from": "File:frontend/pages/users.tsx",
+      "to": "File:frontend/hooks/useUsers.ts",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "IMPORTS:File:frontend/pages/users.tsx->File:frontend/components/UserTable.tsx",
+      "from": "File:frontend/pages/users.tsx",
+      "to": "File:frontend/components/UserTable.tsx",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "RENDERS:Page:frontend/pages/users.tsx#UsersPage->Component:frontend/components/UserTable.tsx#UserTable",
+      "from": "Page:frontend/pages/users.tsx#UsersPage",
+      "to": "Component:frontend/components/UserTable.tsx#UserTable",
+      "kind": "RENDERS"
+    },
+    {
+      "id": "USES:Page:frontend/pages/users.tsx#UsersPage->Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "from": "Page:frontend/pages/users.tsx#UsersPage",
+      "to": "Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "kind": "USES"
+    },
+    {
+      "id": "DEPENDS_ON:DockerService:docker-compose.yml#backend->DockerService:docker-compose.yml#postgres",
+      "from": "DockerService:docker-compose.yml#backend",
+      "to": "DockerService:docker-compose.yml#postgres",
+      "kind": "DEPENDS_ON"
+    },
+    {
+      "id": "DEPENDS_ON:DockerService:docker-compose.yml#backend->DockerService:docker-compose.yml#redis",
+      "from": "DockerService:docker-compose.yml#backend",
+      "to": "DockerService:docker-compose.yml#redis",
+      "kind": "DEPENDS_ON"
+    },
+    {
+      "id": "DEPENDS_ON:DockerService:docker-compose.yml#celery->DockerService:docker-compose.yml#redis",
+      "from": "DockerService:docker-compose.yml#celery",
+      "to": "DockerService:docker-compose.yml#redis",
+      "kind": "DEPENDS_ON"
+    },
+    {
+      "id": "IMPORTS:File:backend/users/serializers.py->File:backend/users/models.py",
+      "from": "File:backend/users/serializers.py",
+      "to": "File:backend/users/models.py",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "IMPORTS:File:backend/users/urls.py->File:backend/users/views.py",
+      "from": "File:backend/users/urls.py",
+      "to": "File:backend/users/views.py",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "IMPORTS:File:backend/users/views.py->File:backend/users/models.py",
+      "from": "File:backend/users/views.py",
+      "to": "File:backend/users/models.py",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "IMPORTS:File:backend/users/views.py->File:backend/users/serializers.py",
+      "from": "File:backend/users/views.py",
+      "to": "File:backend/users/serializers.py",
+      "kind": "IMPORTS"
+    },
+    {
+      "id": "REFERENCES:Model:backend/users/models.py#User->Field:backend/users/models.py#User#email",
+      "from": "Model:backend/users/models.py#User",
+      "to": "Field:backend/users/models.py#User#email",
+      "kind": "REFERENCES"
+    },
+    {
+      "id": "REFERENCES:Model:backend/users/models.py#User->Field:backend/users/models.py#User#name",
+      "from": "Model:backend/users/models.py#User",
+      "to": "Field:backend/users/models.py#User#name",
+      "kind": "REFERENCES"
+    },
+    {
+      "id": "REFERENCES:Model:backend/users/models.py#User->Field:backend/users/models.py#User#created_at",
+      "from": "Model:backend/users/models.py#User",
+      "to": "Field:backend/users/models.py#User#created_at",
+      "kind": "REFERENCES"
+    },
+    {
+      "id": "USES:Serializer:backend/users/serializers.py#UserSerializer->Model:backend/users/models.py#User",
+      "from": "Serializer:backend/users/serializers.py#UserSerializer",
+      "to": "Model:backend/users/models.py#User",
+      "kind": "USES"
+    },
+    {
+      "id": "USES:Serializer:backend/users/serializers.py#UserSerializer->Field:backend/users/models.py#User#email",
+      "from": "Serializer:backend/users/serializers.py#UserSerializer",
+      "to": "Field:backend/users/models.py#User#email",
+      "kind": "USES"
+    },
+    {
+      "id": "USES:Serializer:backend/users/serializers.py#UserSerializer->Field:backend/users/models.py#User#name",
+      "from": "Serializer:backend/users/serializers.py#UserSerializer",
+      "to": "Field:backend/users/models.py#User#name",
+      "kind": "USES"
+    },
+    {
+      "id": "USES:ViewSet:backend/users/views.py#UserViewSet->Serializer:backend/users/serializers.py#UserSerializer",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "Serializer:backend/users/serializers.py#UserSerializer",
+      "kind": "USES"
+    },
+    {
+      "id": "USES:ViewSet:backend/users/views.py#UserViewSet->Model:backend/users/models.py#User",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "Model:backend/users/models.py#User",
+      "kind": "USES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:GET /api/users/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:GET /api/users/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:POST /api/users/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:POST /api/users/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:GET /api/users/{id}/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:GET /api/users/{id}/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:PUT /api/users/{id}/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:PUT /api/users/{id}/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:PATCH /api/users/{id}/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:PATCH /api/users/{id}/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "EXPOSES:ViewSet:backend/users/views.py#UserViewSet->APIEndpoint:DELETE /api/users/{id}/",
+      "from": "ViewSet:backend/users/views.py#UserViewSet",
+      "to": "APIEndpoint:DELETE /api/users/{id}/",
+      "kind": "EXPOSES"
+    },
+    {
+      "id": "CALLS:Hook:frontend/hooks/useUsers.ts#useUsersQuery->APIEndpoint:GET /api/users/",
+      "from": "Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "to": "APIEndpoint:GET /api/users/",
+      "kind": "CALLS",
+      "confidence": "high",
+      "meta": {
+        "url": "/api/users/",
+        "method": "GET"
+      }
+    },
+    {
+      "id": "USES:Hook:frontend/hooks/useUsers.ts#useUsersQuery->Field:backend/users/models.py#User#email",
+      "from": "Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "to": "Field:backend/users/models.py#User#email",
+      "kind": "USES",
+      "confidence": "low",
+      "meta": {
+        "url": "/api/users/",
+        "method": "GET",
+        "field": "email",
+        "source": "response-field",
+        "line": 12
+      }
+    },
+    {
+      "id": "USES:Hook:frontend/hooks/useUsers.ts#useUsersQuery->Field:backend/users/models.py#User#name",
+      "from": "Hook:frontend/hooks/useUsers.ts#useUsersQuery",
+      "to": "Field:backend/users/models.py#User#name",
+      "kind": "USES",
+      "confidence": "low",
+      "meta": {
+        "url": "/api/users/",
+        "method": "GET",
+        "field": "name",
+        "source": "response-field",
+        "line": 13
+      }
+    }
+  ],
+  "issues": [
+    {
+      "kind": "DEAD_CODE",
+      "severity": "low",
+      "message": "Component \"Unused\" is never rendered",
+      "nodes": [
+        "Component:frontend/components/Unused.tsx#Unused"
+      ],
+      "candidate": true,
+      "meta": {
+        "confidence": "low"
+      }
+    },
+    {
+      "kind": "UNUSED_ENDPOINT",
+      "severity": "low",
+      "message": "Endpoint \"POST /api/users/\" has no frontend caller",
+      "nodes": [
+        "APIEndpoint:POST /api/users/"
+      ],
+      "candidate": true
+    },
+    {
+      "kind": "UNUSED_ENDPOINT",
+      "severity": "low",
+      "message": "Endpoint \"GET /api/users/{id}/\" has no frontend caller",
+      "nodes": [
+        "APIEndpoint:GET /api/users/{id}/"
+      ],
+      "candidate": true
+    },
+    {
+      "kind": "UNUSED_ENDPOINT",
+      "severity": "low",
+      "message": "Endpoint \"PUT /api/users/{id}/\" has no frontend caller",
+      "nodes": [
+        "APIEndpoint:PUT /api/users/{id}/"
+      ],
+      "candidate": true
+    },
+    {
+      "kind": "UNUSED_ENDPOINT",
+      "severity": "low",
+      "message": "Endpoint \"PATCH /api/users/{id}/\" has no frontend caller",
+      "nodes": [
+        "APIEndpoint:PATCH /api/users/{id}/"
+      ],
+      "candidate": true
+    },
+    {
+      "kind": "UNUSED_ENDPOINT",
+      "severity": "low",
+      "message": "Endpoint \"DELETE /api/users/{id}/\" has no frontend caller",
+      "nodes": [
+        "APIEndpoint:DELETE /api/users/{id}/"
+      ],
+      "candidate": true
+    }
+  ],
+  "scores": {
+    "health": 89,
+    "breakdown": {
+      "DEAD_CODE": 1,
+      "UNUSED_ENDPOINT": 10
+    }
+  },
+  "insights": {
+    "churn": [],
+    "coverage": [],
+    "hotspots": [],
+    "secrets": [],
+    "explanations": [
+      {
+        "id": "phase-10-clean",
+        "title": "No phase-10 hotspots",
+        "summary": "No churn hotspots, secret candidates, or coverage gaps were detected from the available local inputs.",
+        "evidence": []
+      }
+    ],
+    "dependencyAudit": {
+      "status": "not_run",
+      "reason": "Dependency CVE lookup requires an external advisory source; the local deterministic scan records this as not run."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "deadcode-app",
+  "private": true,
+  "dependencies": {
+    "next": "14",
+    "react": "18"
+  }
+}
