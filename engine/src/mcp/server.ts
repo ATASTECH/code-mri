@@ -425,9 +425,40 @@ function contentText(result: unknown, mode: McpTextMode): string {
     lines.push("kind\tconfidence\tcommand\treason", ...testRows.map((row) => row.join("\t")));
   }
 
+  const windowRows = [
+    ...(result.mustRead ?? []).map((window) => ["mustRead", window] as const),
+    ...(result.maybeReadLater ?? []).map((window) => ["maybeReadLater", window] as const),
+  ]
+    .slice(0, 12)
+    .map(([kind, window]) =>
+      [kind, window.file, `${window.startLine}-${window.endLine}`, window.reasonCode ?? "", window.confidence].join("\t"),
+    );
+  if (windowRows.length) {
+    lines.push("kind\tfile\tlines\treasonCode\tconfidence", ...windowRows);
+  }
+
+  if (typeof result.safeToProceed === "boolean") lines.push(`safeToProceed=${result.safeToProceed}`);
+  for (const item of (result.mustFix ?? []).slice(0, 8)) lines.push(`mustFix\t${item}`);
+  for (const item of (result.shouldCheck ?? []).slice(0, 8)) lines.push(`shouldCheck\t${item}`);
+
+  for (const window of (result.windows ?? []).slice(0, 12)) {
+    const header = `--- ${window.file}:${window.startLine}-${window.endLine}${window.redacted ? " [redacted]" : ""}`;
+    if (window.source !== undefined) {
+      lines.push(header, window.source);
+    } else {
+      lines.push(`${header} (${window.message ?? "source omitted"})`);
+    }
+  }
+
+  for (const next of (result.nextQueries ?? []).slice(0, 3)) {
+    lines.push(`nextQuery\t${next.tool}\t${next.reason}`);
+  }
+
   return lines.join("\n");
 }
 
+// "windows" is intentionally NOT deduped: a repeated read_windows call is a
+// legitimate re-read (e.g. after agent context compaction) and must return source.
 const DEDUPE_ARRAY_KEYS = [
   "nodes",
   "candidates",
@@ -436,7 +467,6 @@ const DEDUPE_ARRAY_KEYS = [
   "issues",
   "risks",
   "breakingChanges",
-  "windows",
 ] as const;
 
 function payloadHash(value: unknown): string {

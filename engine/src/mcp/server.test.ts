@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import type { Report } from "../types.js";
@@ -366,6 +366,81 @@ describe("Code MRI MCP server handler", () => {
       expect(afterLoad.result.structuredContent.nodes[0]?.deduped).toBeUndefined();
     } finally {
       rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("summary text includes read_windows source content", async () => {
+    const root = mkdtempSync(path.join(tmpdir(), "code-mri-mcp-"));
+    try {
+      mkdirSync(path.join(root, "src"), { recursive: true });
+      writeFileSync(path.join(root, "src", "config.ts"), "export const ok = true;\nexport const done = true;\n");
+      const fsReport: Report = {
+        ...report,
+        project: { name: "demo", root, stack: ["typescript"] },
+        nodes: [{ id: "File:src/config.ts", kind: "File", name: "src/config.ts", loc: { file: "src/config.ts" } }],
+        issues: [],
+      };
+
+      const response = (await handleMcpRequest(createMcpContext(fsReport), {
+        id: 90,
+        method: "tools/call",
+        params: {
+          name: "read_windows",
+          arguments: { windows: [{ file: "src/config.ts", startLine: 1, endLine: 2, reason: "test", confidence: "high" }] },
+        },
+      })) as { result: { content: Array<{ text: string }> } };
+
+      expect(response.result.content[0]?.text).toContain("src/config.ts:1-2");
+      expect(response.result.content[0]?.text).toContain("export const ok = true;");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("summary text includes mustRead windows and review verdict", async () => {
+    const ctx = createMcpContext(report);
+    const editContext = (await handleMcpRequest(ctx, {
+      id: 91,
+      method: "tools/call",
+      params: { name: "prepare_edit_context", arguments: { task: "change App", files: ["src/App.tsx"] } },
+    })) as { result: { content: Array<{ text: string }> } };
+    expect(editContext.result.content[0]?.text).toContain("mustRead\tsrc/App.tsx");
+
+    const review = (await handleMcpRequest(createMcpContext(report), {
+      id: 92,
+      method: "tools/call",
+      params: { name: "review_planned_change", arguments: { plan: "change App", files: ["src/App.tsx"] } },
+    })) as { result: { content: Array<{ text: string }> } };
+    expect(review.result.content[0]?.text).toContain("safeToProceed=true");
+  });
+
+  test("repeated read_windows calls keep returning source (windows are not deduped)", async () => {
+    const root = mkdtempSync(path.join(tmpdir(), "code-mri-mcp-"));
+    try {
+      mkdirSync(path.join(root, "src"), { recursive: true });
+      writeFileSync(path.join(root, "src", "config.ts"), "export const ok = true;\n");
+      const fsReport: Report = {
+        ...report,
+        project: { name: "demo", root, stack: ["typescript"] },
+        nodes: [{ id: "File:src/config.ts", kind: "File", name: "src/config.ts", loc: { file: "src/config.ts" } }],
+        issues: [],
+      };
+      const ctx = createMcpContext(fsReport);
+      const args = {
+        windows: [{ file: "src/config.ts", startLine: 1, endLine: 1, reason: "test", confidence: "high" }],
+      };
+
+      await handleMcpRequest(ctx, { id: 93, method: "tools/call", params: { name: "read_windows", arguments: args } });
+      const second = (await handleMcpRequest(ctx, {
+        id: 94,
+        method: "tools/call",
+        params: { name: "read_windows", arguments: args },
+      })) as { result: { structuredContent: { windows: Array<{ source?: string; deduped?: boolean }> } } };
+
+      expect(second.result.structuredContent.windows[0]?.deduped).toBeUndefined();
+      expect(second.result.structuredContent.windows[0]?.source).toContain("export const ok = true;");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
     }
   });
 });

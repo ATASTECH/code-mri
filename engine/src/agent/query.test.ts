@@ -8,6 +8,7 @@ import {
   askGraph,
   checkBreakingChanges,
   createAgentQueryContext,
+  finalizeAgentResult,
   findDeadCode,
   getNodeContext,
   graphSearch,
@@ -18,6 +19,7 @@ import {
   recommendTests,
   reviewDiff,
   tokenSavingsReport,
+  type AgentNodeReference,
 } from "./query.js";
 
 const MODEL_FILE = nodeId("File", "backend/users/models.py");
@@ -434,6 +436,75 @@ describe("agent report query tools", () => {
       expect(budgeted.resultStats?.estimatedTokens).toBeLessThanOrEqual(120);
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("outline mode keeps Python def/class/decorator lines", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "code-mri-agent-"));
+    try {
+      mkdirSync(path.join(root, "api"), { recursive: true });
+      writeFileSync(
+        path.join(root, "api", "users.py"),
+        [
+          "import os",
+          "",
+          '@app.get("/users")',
+          "def list_users():",
+          "    return []",
+          "",
+          "class UserService:",
+          "    async def get(self):",
+          "        return None",
+        ].join("\n"),
+      );
+      const ctx = createAgentQueryContext(
+        report({
+          project: { name: "demo", root, stack: ["python"] },
+          nodes: [{ id: "File:api/users.py", kind: "File", name: "api/users.py", loc: { file: "api/users.py" } }],
+        }),
+      );
+
+      const outline = readWindows(ctx, {
+        windows: [{ file: "api/users.py", startLine: 1, endLine: 9, reason: "test", confidence: "high" }],
+        mode: "outline",
+      });
+      const source = outline.windows?.[0]?.source ?? "";
+      expect(source).toContain("def list_users():");
+      expect(source).toContain('@app.get("/users")');
+      expect(source).toContain("class UserService:");
+      expect(source).toContain("async def get(self):");
+      expect(source).not.toContain("return []");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("nextQueries arguments are capped and never embed large input arrays", () => {
+    const nodes: AgentNodeReference[] = Array.from({ length: 20 }, (_, index) => ({
+      id: `File:src/file-${index}.ts`,
+      kind: "File",
+      name: `src/file-${index}.ts`,
+      loc: { file: `src/file-${index}.ts` },
+      confidence: "high",
+      evidence: [],
+    }));
+    const fatWindows = Array.from({ length: 40 }, (_, index) => ({
+      file: `src/very/long/path/to/some/module/file-${index}.ts`,
+      startLine: 1,
+      endLine: 80,
+      reason: "a fairly long reason string that inflates the serialized input payload",
+      confidence: "high" as const,
+    }));
+
+    const result = finalizeAgentResult(
+      { tool: "read_windows", plan: [], confidence: "high", loc: null, nodes },
+      { limit: 3, windows: fatWindows } as Parameters<typeof finalizeAgentResult>[1],
+    );
+
+    expect(result.resultStats?.omitted.nodes).toBeGreaterThan(0);
+    expect(result.nextQueries?.length).toBeGreaterThan(0);
+    for (const next of result.nextQueries ?? []) {
+      expect(JSON.stringify(next.arguments).length).toBeLessThanOrEqual(400);
     }
   });
 

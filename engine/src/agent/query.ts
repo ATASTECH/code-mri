@@ -399,6 +399,11 @@ function nextQueryArguments(input: AgentContextInput, key: string, cursor: strin
   args.detail = args.detail ?? "standard";
   args.limit = Math.min(omittedCount, 20);
   if (key !== "windows") delete args.maxChars;
+  // Unconditional cap: suggestions must never echo large input arrays
+  // (e.g. read_windows' windows list) back into the response.
+  if (JSON.stringify(args).length > 400) {
+    return { cursor: args.cursor, detail: args.detail, limit: args.limit };
+  }
   return args;
 }
 
@@ -1373,7 +1378,9 @@ export function readWindows(ctx: AgentQueryContext, input: ReadWindowsInput): Ag
     const source =
       mode === "outline"
         ? selected
-            .filter((line) => /^\s*(export\s+)?(async\s+)?(function|class|interface|type|const|let|var)\b/.test(line))
+            .filter((line) =>
+              /^\s*(export\s+)?(async\s+)?(function|class|interface|type|enum|const|let|var|def)\b|^\s*@\w/.test(line),
+            )
             .join("\n")
         : selected.join("\n");
     const nextChars = Buffer.byteLength(source, "utf8");
