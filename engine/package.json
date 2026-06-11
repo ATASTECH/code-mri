@@ -1,6 +1,6 @@
 {
   "name": "@code-mri/engine",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "description": "Local-first code graph, impact analysis, CI gates, and MCP server for coding agents",
   "type": "module",
