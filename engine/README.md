@@ -16,8 +16,8 @@ Run the MCP server for coding agents:
 npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri
 ```
 
-MCP clients only install `@code-mri/engine`; `@code-mri/shared-types` is pulled
-automatically as the shared report-schema dependency.
+MCP clients only install `@code-mri/engine`; report schema types are exported
+from this package.
 
 See the repository README for the local Next.js UI, full setup, MCP behavior,
 and client configuration examples.

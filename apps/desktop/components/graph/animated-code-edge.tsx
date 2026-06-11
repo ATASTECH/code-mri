@@ -1,6 +1,6 @@
 "use client"
 
-import type { Confidence, EdgeKind } from "@code-mri/shared-types"
+import type { Confidence, EdgeKind } from "@code-mri/engine"
 import type { CSSProperties } from "react"
 import type { Edge, EdgeProps } from "@xyflow/react"
 import {

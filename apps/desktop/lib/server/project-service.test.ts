@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import * as path from "node:path"
-import type { ProjectRepoRole, Report } from "@code-mri/shared-types"
+import type { ProjectRepoRole, Report } from "@code-mri/engine"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
 const gitStates = vi.hoisted(

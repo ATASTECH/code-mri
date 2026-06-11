@@ -1,6 +1,6 @@
 "use client"
 
-import type { Report } from "@code-mri/shared-types"
+import type { Report } from "@code-mri/engine"
 import { useMemo } from "react"
 import { GraphFlow } from "@/components/GraphFlow"
 

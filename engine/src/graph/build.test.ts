@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { buildGraph } from "./build.js";
 

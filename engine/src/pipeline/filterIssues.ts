@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode, Issue } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, Issue } from "../types.js";
 import type { CodeMriConfig } from "../config/codemri.js";
 import { matchesAnyGlob } from "../config/glob.js";
 

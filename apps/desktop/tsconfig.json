@@ -20,8 +20,8 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@code-mri/engine/diff": ["../../engine/src/diff/reportDiff.ts"],
-      "@code-mri/shared-types": ["../../packages/shared-types/src/index.ts"]
+      "@code-mri/engine": ["../../engine/src/index.ts"],
+      "@code-mri/engine/diff": ["../../engine/src/diff/reportDiff.ts"]
     }
   },
   "include": [

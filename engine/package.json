@@ -1,6 +1,6 @@
 {
   "name": "@code-mri/engine",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": false,
   "description": "Local-first code graph, impact analysis, CI gates, and MCP server for coding agents",
   "type": "module",
@@ -33,14 +33,13 @@
     "scan": "tsx src/cli/index.ts scan",
     "mcp": "tsx src/cli/index.ts mcp",
     "bench": "tsx bench/scan.ts",
-    "build": "pnpm --filter @code-mri/shared-types build && tsc -p tsconfig.build.json && mkdir -p dist/parsers/py-sidecar && cp -R src/parsers/py-sidecar/. dist/parsers/py-sidecar",
+    "build": "tsc -p tsconfig.build.json && mkdir -p dist/parsers/py-sidecar && cp -R src/parsers/py-sidecar/. dist/parsers/py-sidecar",
     "prepack": "pnpm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@code-mri/shared-types": "workspace:*",
     "commander": "^12.1.0",
     "fast-glob": "^3.3.2",
     "ignore": "^6.0.2",

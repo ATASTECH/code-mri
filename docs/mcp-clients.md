@@ -1,7 +1,7 @@
 # MCP Client Configuration
 
-Use the npm package. This is the only package an MCP client needs; npm installs
-`@code-mri/shared-types` automatically as an engine dependency.
+Use the npm package. This is the only package an MCP client needs; report
+schema types are exported from `@code-mri/engine`.
 
 ```bash
 npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri

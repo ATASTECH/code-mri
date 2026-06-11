@@ -1,4 +1,4 @@
-import type { IssueKind, Issue, ScoreBreakdown, Scores } from "@code-mri/shared-types";
+import type { IssueKind, Issue, ScoreBreakdown, Scores } from "../types.js";
 
 /**
  * Per-issue health penalties. Kept explicit and modest so the final score is

@@ -1,4 +1,4 @@
-import type { NodeKind, ProjectRepoInfo, Report } from "@code-mri/shared-types"
+import type { NodeKind, ProjectRepoInfo, Report } from "@code-mri/engine"
 import {
   ContributionGraph,
   type ContributionData,

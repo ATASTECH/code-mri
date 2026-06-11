@@ -10,7 +10,7 @@ import type {
   Report,
   ReportDiff,
   SourceLocation,
-} from "@code-mri/shared-types";
+} from "../types.js";
 import { diffReports } from "../diff/reportDiff.js";
 import { buildGraph } from "../graph/build.js";
 
@@ -564,18 +564,16 @@ function nearbyTestFiles(files: string[], changedFile: string): string[] {
   return [...new Set(matches)].sort();
 }
 
-function packageNameForFile(file: string): "engine" | "desktop" | "shared-types" | "workspace" {
+function packageNameForFile(file: string): "engine" | "desktop" | "workspace" {
   if (file.startsWith("engine/")) return "engine";
   if (file.startsWith("apps/desktop/")) return "desktop";
-  if (file.startsWith("packages/shared-types/")) return "shared-types";
   return "workspace";
 }
 
 function stripPackagePrefix(file: string): string {
   return file
     .replace(/^engine\//, "")
-    .replace(/^apps\/desktop\//, "")
-    .replace(/^packages\/shared-types\//, "");
+    .replace(/^apps\/desktop\//, "");
 }
 
 function filesFromRecommendInput(ctx: AgentQueryContext, input: RecommendTestsInput): string[] {
@@ -646,8 +644,11 @@ export function recommendTests(
         add("pnpm --filter @code-mri/engine test", `No direct test file was found for ${file}`, "medium", loc);
       }
       add("pnpm --filter @code-mri/engine typecheck", "Engine TypeScript API changed or may be consumed by the CLI", "high", loc);
-      if (/^engine\/src\/(agent|mcp|cli|index\.ts)/.test(file)) {
+      if (/^engine\/src\/(agent|mcp|cli|index\.ts|types\.ts)/.test(file)) {
         add("pnpm --filter @code-mri/engine build", "Public engine or CLI/MCP surface changed", "high", loc);
+      }
+      if (file === "engine/src/types.ts") {
+        add("pnpm --filter @code-mri/desktop typecheck", "Desktop consumes engine report types", "medium", loc);
       }
     } else if (pkg === "desktop") {
       if (tests.length > 0) {
@@ -661,10 +662,6 @@ export function recommendTests(
         add("pnpm --filter @code-mri/desktop test", `No direct desktop test file was found for ${file}`, "medium", loc);
       }
       add("pnpm --filter @code-mri/desktop typecheck", "Desktop TypeScript surface changed", "high", loc);
-    } else if (pkg === "shared-types") {
-      add("pnpm --filter @code-mri/shared-types build", "Shared report/type contract changed", "high", loc);
-      add("pnpm --filter @code-mri/engine typecheck", "Engine consumes shared-types", "high", loc);
-      add("pnpm --filter @code-mri/desktop typecheck", "Desktop consumes shared-types", "medium", loc);
     } else {
       add("pnpm test", `Workspace-level fallback for ${file}`, "low", loc);
     }

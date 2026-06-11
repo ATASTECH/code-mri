@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode } from "../types.js";
 import { Graph } from "./graph.js";
 
 export interface GraphParts {

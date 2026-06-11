@@ -1,4 +1,4 @@
-import type { GraphNode, NodeKind } from "@code-mri/shared-types"
+import type { GraphNode, NodeKind } from "@code-mri/engine"
 
 /** Left-to-right column order, roughly following the backend → frontend flow. */
 const COLUMN_ORDER: NodeKind[] = [

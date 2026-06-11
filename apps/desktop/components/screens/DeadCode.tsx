@@ -1,6 +1,6 @@
 "use client"
 
-import type { Confidence, Issue, Report } from "@code-mri/shared-types"
+import type { Confidence, Issue, Report } from "@code-mri/engine"
 import { useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

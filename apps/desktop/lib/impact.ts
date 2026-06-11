@@ -1,4 +1,4 @@
-import type { EdgeKind, GraphEdge, GraphNode } from "@code-mri/shared-types"
+import type { EdgeKind, GraphEdge, GraphNode } from "@code-mri/engine"
 
 /** Mirror of the engine's impact direction rules (see engine graph.ts). */
 const IMPACT_REVERSE = new Set<EdgeKind>([

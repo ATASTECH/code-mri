@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
-import { REPORT_SCHEMA_VERSION, type GraphNode, type Report } from "@code-mri/shared-types";
+import { REPORT_SCHEMA_VERSION, type GraphNode, type Report } from "../types.js";
 import { loadCodeMriConfig, type CodeMriConfig } from "../config/codemri.js";
 import { buildGraph } from "../graph/build.js";
 import type { Graph } from "../graph/graph.js";

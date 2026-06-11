@@ -1,4 +1,4 @@
-import type { GraphNode } from "@code-mri/shared-types";
+import type { GraphNode } from "../types.js";
 import type { PublicApiConfig } from "../config/codemri.js";
 import { matchesAnyGlob } from "../config/glob.js";
 

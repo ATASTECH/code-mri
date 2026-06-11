@@ -1,4 +1,4 @@
-import type { Issue, Report, ReportDiff } from "@code-mri/shared-types";
+import type { Issue, Report, ReportDiff } from "../types.js";
 import type { CiGateConfig } from "../config/codemri.js";
 
 export type CiGateViolationKind =

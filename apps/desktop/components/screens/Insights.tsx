@@ -6,7 +6,7 @@ import type {
   Issue,
   Report,
   SecretFinding,
-} from "@code-mri/shared-types"
+} from "@code-mri/engine"
 import { Badge } from "@/components/ui/badge"
 import type { NodeHistorySeries } from "@/lib/report"
 import {

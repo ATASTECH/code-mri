@@ -1,4 +1,4 @@
-import type { Confidence, GraphEdge, Issue } from "@code-mri/shared-types";
+import type { Confidence, GraphEdge, Issue } from "../types.js";
 import { edgeId } from "../ids.js";
 import type { BackendRoute } from "../parsers/py/assemble.js";
 import type { ResolvedApiCall } from "../parsers/ts/analyze.js";

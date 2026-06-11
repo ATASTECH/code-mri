@@ -1,4 +1,4 @@
-import type { Confidence, EdgeKind, GraphNode, Issue } from "@code-mri/shared-types";
+import type { Confidence, EdgeKind, GraphNode, Issue } from "../types.js";
 import type { PublicApiConfig } from "../config/codemri.js";
 import type { Graph } from "../graph/graph.js";
 import { isDeclaredPublicApi } from "./publicApi.js";

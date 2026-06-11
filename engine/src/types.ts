@@ -1,5 +1,5 @@
 /**
- * Code MRI — shared type contract.
+ * Code MRI — report type contract.
  *
  * This is the single source of truth for the graph and report shapes that flow
  * between the engine pipeline stages, the CLI JSON output, and the desktop UI.

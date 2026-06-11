@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode, NodeKind } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, NodeKind } from "../../types.js";
 import { edgeId, nodeId } from "../../ids.js";
 
 // ---------------------------------------------------------------------------

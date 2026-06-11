@@ -1,4 +1,5 @@
 /** Public engine API (consumed by the CLI and the desktop app). */
+export * from "./types.js";
 export { analyzeProject } from "./pipeline/analyze.js";
 export type { ProjectAnalysis } from "./pipeline/analyze.js";
 export { analyzeProjectRepos } from "./pipeline/analyzeRepos.js";

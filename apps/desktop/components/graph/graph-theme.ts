@@ -2,7 +2,7 @@ import type {
   Confidence,
   EdgeKind,
   NodeKind,
-} from "@code-mri/shared-types"
+} from "@code-mri/engine"
 
 export interface KindTheme {
   accent: string

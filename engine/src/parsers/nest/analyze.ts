@@ -8,7 +8,7 @@ import {
   type SourceFile,
   ts,
 } from "ts-morph";
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode } from "../../types.js";
 import { edgeId, nodeId } from "../../ids.js";
 import type { BackendRoute } from "../py/assemble.js";
 

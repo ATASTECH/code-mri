@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import type { Report } from "@code-mri/shared-types";
+import type { Report } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { nodeId } from "../ids.js";
 import { analyzeProject } from "./analyze.js";

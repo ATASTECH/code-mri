@@ -1,4 +1,4 @@
-import type { Report } from "@code-mri/shared-types"
+import type { Report } from "@code-mri/engine"
 import { importReportPayload } from "@/lib/server/project-service"
 
 export const runtime = "nodejs"

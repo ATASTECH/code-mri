@@ -1,4 +1,4 @@
-import type { IssueKind, Report, ReportDiff } from "@code-mri/shared-types";
+import type { IssueKind, Report, ReportDiff } from "../types.js";
 import type { CiGateResult } from "../ci/gates.js";
 
 /** Render a human-readable scan summary for the terminal. */

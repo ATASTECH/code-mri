@@ -5,7 +5,7 @@ import { mkdirSync } from "node:fs"
 import { homedir } from "node:os"
 import * as path from "node:path"
 import { DatabaseSync } from "node:sqlite"
-import type { ProjectRepoRole, Report } from "@code-mri/shared-types"
+import type { ProjectRepoRole, Report } from "@code-mri/engine"
 
 export type ProjectScanStatus = "idle" | "success" | "error"
 

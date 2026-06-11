@@ -1,4 +1,4 @@
-import type { ReportChange, ReportDiff } from "@code-mri/shared-types"
+import type { ReportChange, ReportDiff } from "@code-mri/engine"
 import { GitCompareArrowsIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {

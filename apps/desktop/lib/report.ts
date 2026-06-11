@@ -1,6 +1,6 @@
 "use client"
 
-import type { ProjectRepoRole, Report, ReportDiff } from "@code-mri/shared-types"
+import type { ProjectRepoRole, Report, ReportDiff } from "@code-mri/engine"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 export interface ProjectRepoDraft {

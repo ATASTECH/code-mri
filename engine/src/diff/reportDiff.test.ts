@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { Report } from "@code-mri/shared-types";
+import type { Report } from "../types.js";
 import { nodeId } from "../ids.js";
 import { diffReports } from "./reportDiff.js";
 

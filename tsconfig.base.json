@@ -12,9 +12,6 @@
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "@code-mri/shared-types": ["packages/shared-types/src/index.ts"]
-    }
+    "baseUrl": "."
   }
 }

@@ -4,7 +4,7 @@ import type {
   GraphNode,
   Issue,
   NodeKind,
-} from "@code-mri/shared-types"
+} from "@code-mri/engine"
 import type { ReportGraph } from "./impact"
 
 export interface ApiRow {

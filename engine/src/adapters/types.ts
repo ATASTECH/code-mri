@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode } from "../types.js";
 import type { BackendRoute } from "../parsers/py/assemble.js";
 import type { PyCache } from "../parsers/py/cache.js";
 import type { SidecarOptions } from "../parsers/py/sidecar.js";

@@ -1,6 +1,6 @@
 "use client"
 
-import type { NodeKind } from "@code-mri/shared-types"
+import type { NodeKind } from "@code-mri/engine"
 import type { LucideIcon } from "lucide-react"
 import {
   BoxIcon,

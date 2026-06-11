@@ -6,7 +6,7 @@ import type {
   Report,
   ReportChange,
   ReportDiff,
-} from "@code-mri/shared-types";
+} from "../types.js";
 
 function stable(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;

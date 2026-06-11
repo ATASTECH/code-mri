@@ -1,4 +1,4 @@
-import type { GraphNode } from "@code-mri/shared-types"
+import type { GraphNode } from "@code-mri/engine"
 import { describe, expect, test } from "vitest"
 import { layoutByKind } from "./layout"
 

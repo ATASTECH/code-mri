@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
 import { load } from "js-yaml";
-import type { GraphNode } from "@code-mri/shared-types";
+import type { GraphNode } from "../../types.js";
 import { nodeId } from "../../ids.js";
 import type { BackendRoute } from "../py/assemble.js";
 

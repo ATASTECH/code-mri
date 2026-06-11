@@ -7,7 +7,7 @@ import {
   type ProjectRepoInfo,
   type ProjectRepoRole,
   type Report,
-} from "@code-mri/shared-types";
+} from "../types.js";
 import { loadCodeMriConfig, type CodeMriConfig } from "../config/codemri.js";
 import { buildGraph } from "../graph/build.js";
 import type { Graph } from "../graph/graph.js";

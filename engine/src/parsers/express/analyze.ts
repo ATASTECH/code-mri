@@ -10,7 +10,7 @@ import {
   type Node as MorphNode,
   type SourceFile,
 } from "ts-morph";
-import type { GraphEdge, GraphNode, NodeKind } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, NodeKind } from "../../types.js";
 import { edgeId, nodeId } from "../../ids.js";
 import type { BackendRoute } from "../py/assemble.js";
 import { extractDeclarations } from "../ts/declarations.js";

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
 import { load } from "js-yaml";
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode } from "../../types.js";
 import { edgeId, nodeId } from "../../ids.js";
 
 export interface DockerAnalysis {

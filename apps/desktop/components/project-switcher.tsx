@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import type { ProjectRepoRole } from "@code-mri/shared-types"
+import type { ProjectRepoRole } from "@code-mri/engine"
 import {
   ChevronsUpDownIcon,
   FolderKanbanIcon,

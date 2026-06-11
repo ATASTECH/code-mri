@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types"
+import type { GraphEdge, GraphNode } from "@code-mri/engine"
 import { describe, expect, test } from "vitest"
 import { impactSubgraph } from "./impact"
 

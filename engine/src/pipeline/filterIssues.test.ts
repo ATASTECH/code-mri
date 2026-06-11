@@ -1,4 +1,4 @@
-import type { GraphEdge, GraphNode, Issue } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, Issue } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { parseCodeMriConfig } from "../config/codemri.js";
 import { filterIgnoredRiskIssues } from "./filterIssues.js";

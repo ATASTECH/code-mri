@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
 import yaml from "js-yaml";
-import type { EdgeKind, NodeKind } from "@code-mri/shared-types";
+import type { EdgeKind, NodeKind } from "../types.js";
 
 export const CONFIG_FILE_NAMES = [".codemri.yml", ".codemri.yaml", ".codemri.json"];
 

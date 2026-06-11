@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import type { Report } from "@code-mri/shared-types";
+import type { Report } from "../types.js";
 import type { BoundaryGroupConfig, CodeMriConfig } from "./codemri.js";
 
 function filePathFromNodeId(id: string): string | null {

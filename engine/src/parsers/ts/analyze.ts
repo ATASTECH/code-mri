@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
 import { Project, ts } from "ts-morph";
-import type { GraphEdge, GraphNode, NodeKind } from "@code-mri/shared-types";
+import type { GraphEdge, GraphNode, NodeKind } from "../../types.js";
 import { edgeId, nodeId } from "../../ids.js";
 import type { ApiCall } from "./apiCalls.js";
 import { type FactsCache, hashContent } from "./cache.js";

@@ -12,7 +12,7 @@ import type {
   Report,
   ReportChange,
   ReportDiff,
-} from "@code-mri/shared-types"
+} from "@code-mri/engine"
 import {
   createProject,
   getActiveProjectId,

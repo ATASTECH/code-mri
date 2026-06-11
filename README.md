@@ -60,8 +60,8 @@ After the server is connected, ask the agent to call `scan_project` for the
 repo, then use `graph_search`, `impact_query`, `get_node_context`, or
 `recommend_tests` before editing code.
 
-You do not install `@code-mri/shared-types` for MCP. It is a dependency used by
-`@code-mri/engine` and the local UI to share the report schema.
+You do not install a second Code MRI package for MCP. The report schema types
+are exported from `@code-mri/engine`.
 
 ## What It Answers
 
@@ -99,7 +99,6 @@ code-mri/
 ├── apps/desktop/             # local Next.js UI with SQLite project state
 ├── engine/                   # scanner, parsers, graph, linker, rules, CLI, CI, MCP
 │   └── test/fixtures/        # engine-only fixture projects and golden snapshots
-├── packages/shared-types/    # report, graph, issue, and diff type contracts
 ├── docs/                     # MCP, security, publishing, and limitations docs
 └── TASKS.md                  # local roadmap/status file, gitignored
 ```
@@ -513,18 +512,19 @@ See [docs/mcp-server.md](docs/mcp-server.md) and
 
 ## Public Packages
 
-Publishable packages:
+Publishable package:
 
-- `@code-mri/engine`: public CLI, engine API, CI helpers, and MCP server.
-- `@code-mri/shared-types`: shared graph, report, issue, diff, and insight
-  contracts used by the engine and local UI. Users and agents normally do not
-  install this package directly.
+- `@code-mri/engine`: public CLI, engine API, report schema types, CI helpers,
+  and MCP server.
 
 The engine package exposes:
 
 - CLI binary: `code-mri`
 - package export: `@code-mri/engine`
 - diff export: `@code-mri/engine/diff`
+
+Older `@code-mri/shared-types` releases are legacy; consumers should import
+report and graph types from `@code-mri/engine`.
 
 Publishing checklist lives in [docs/publishing.md](docs/publishing.md).
 
@@ -543,7 +543,7 @@ scan roots
 ```
 
 The report graph is the common contract. CLI output, desktop screens, CI gates,
-and MCP tools all consume the same report shape from `@code-mri/shared-types`.
+and MCP tools all consume the same report shape exported by `@code-mri/engine`.
 
 ## Development
 
@@ -570,16 +570,11 @@ pnpm --filter @code-mri/desktop build
 Package dry-run:
 
 ```bash
-cd packages/shared-types
-pnpm pack --pack-destination /tmp/code-mri-pack
-
-cd ../../engine
+cd engine
 pnpm pack --pack-destination /tmp/code-mri-pack
 ```
 
-Use `pnpm pack` or `pnpm publish` for release checks. The engine package has a
-workspace dependency on `@code-mri/shared-types`; pnpm rewrites that dependency
-to the package version in the published tarball.
+Use `pnpm pack` or `pnpm publish` for release checks.
 
 Engine fixture projects and the golden report snapshot live under
 `engine/test/fixtures`. They are for parser and pipeline tests, not a public

@@ -1,11 +1,9 @@
 # Publishing Checklist
 
-Publish order matters because `@code-mri/engine` depends on
-`@code-mri/shared-types`.
+Code MRI publishes one public package: `@code-mri/engine`. The CLI, engine API,
+report schema types, CI helpers, and MCP server all ship from that package.
 
-1. Update versions in:
-   - `packages/shared-types/package.json`
-   - `engine/package.json`
+1. Update the version in `engine/package.json`.
 2. Use Node.js 24 LTS:
 
 ```bash
@@ -33,30 +31,26 @@ pnpm --filter @code-mri/desktop typecheck
 
 ```bash
 mkdir -p /tmp/code-mri-pack
-cd packages/shared-types
-pnpm pack --pack-destination /tmp/code-mri-pack
-cd ../../engine
+cd engine
 pnpm pack --pack-destination /tmp/code-mri-pack
 ```
 
-Use `pnpm pack` or `pnpm publish` for release checks. The engine package has a
-workspace dependency on `@code-mri/shared-types`; pnpm rewrites that dependency
-to the package version in the published tarball.
+Use `pnpm pack` or `pnpm publish` for release checks.
 
-6. Publish shared types first:
-
-```bash
-pnpm --filter @code-mri/shared-types publish --access public
-```
-
-7. Publish engine/MCP CLI:
+6. Publish engine/MCP CLI:
 
 ```bash
 pnpm --filter @code-mri/engine publish --access public
 ```
 
+7. If an old `@code-mri/shared-types` package is visible on npm, deprecate it:
+
+```bash
+npm deprecate @code-mri/shared-types "Code MRI is now one package. Use @code-mri/engine for CLI, MCP, and report types."
+```
+
 8. Smoke test from npm:
 
 ```bash
-npx -y @code-mri/engine mcp --allow-scan --state-dir .code-mri
+npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri
 ```

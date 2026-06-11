@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
-import type { ProjectRepoRole, Report } from "@code-mri/shared-types";
+import type { ProjectRepoRole, Report } from "../types.js";
 import { askGraph, createAgentQueryContext } from "../agent/index.js";
 import { evaluateCiGates, formatCiMarkdown, formatSarif } from "../ci/index.js";
 import { loadCodeMriConfig } from "../config/codemri.js";

@@ -1,4 +1,4 @@
-import type { EdgeKind, GraphEdge, GraphNode } from "@code-mri/shared-types";
+import type { EdgeKind, GraphEdge, GraphNode } from "../types.js";
 
 /**
  * Edge kinds whose *source* depends on the *target* — so a change to the target

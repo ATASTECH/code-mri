@@ -1,4 +1,4 @@
-import type { GraphNode, Issue, Report, ReportChange, ReportDiff } from "@code-mri/shared-types";
+import type { GraphNode, Issue, Report, ReportChange, ReportDiff } from "../types.js";
 import { buildGraph } from "../graph/build.js";
 import type { CiGateResult } from "./gates.js";
 

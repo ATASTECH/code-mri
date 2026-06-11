@@ -1,6 +1,6 @@
 "use client"
 
-import type { GraphEdge, GraphNode } from "@code-mri/shared-types"
+import type { GraphEdge, GraphNode } from "@code-mri/engine"
 import {
   Background,
   BackgroundVariant,

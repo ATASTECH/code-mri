@@ -1,4 +1,4 @@
-import type { Issue } from "@code-mri/shared-types";
+import type { Issue } from "../types.js";
 import type { BoundaryConfig, CodeMriConfig, PublicApiConfig } from "../config/codemri.js";
 import type { Graph } from "../graph/graph.js";
 import { findBoundaryViolations } from "./boundaries.js";

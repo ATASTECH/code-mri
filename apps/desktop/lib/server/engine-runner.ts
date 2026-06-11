@@ -6,7 +6,7 @@ import { existsSync } from "node:fs"
 import { readFile, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import * as path from "node:path"
-import type { Report } from "@code-mri/shared-types"
+import type { Report } from "@code-mri/engine"
 import {
   buildEngineNodeArgs,
   buildScanProjectArgs,

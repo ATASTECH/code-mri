@@ -10,7 +10,7 @@ import type {
   HotspotMetric,
   Issue,
   SecretFinding,
-} from "@code-mri/shared-types";
+} from "../types.js";
 import type { Graph } from "../graph/graph.js";
 import { nodeId } from "../ids.js";
 import type { FileCategory, ScanFile } from "../scanner/index.js";

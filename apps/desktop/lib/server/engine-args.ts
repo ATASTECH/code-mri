@@ -1,4 +1,4 @@
-import type { ProjectRepoRole } from "@code-mri/shared-types"
+import type { ProjectRepoRole } from "@code-mri/engine"
 
 export interface EngineRepoInput {
   id: string

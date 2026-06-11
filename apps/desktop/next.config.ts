@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: fileURLToPath(new URL("../..", import.meta.url)),
   },
-  transpilePackages: ["@code-mri/shared-types"],
   // The scan engine pulls in ts-morph, which embeds the full TypeScript
   // compiler (@ts-morph/common is an ~11MB single file; typescript is ~23MB).
   // Letting Turbopack bundle these on-demand spikes dev memory by >1GB per

@@ -1,4 +1,4 @@
-import type { EdgeKind, NodeKind } from "@code-mri/shared-types";
+import type { EdgeKind, NodeKind } from "./types.js";
 
 /** Separator between a node's location and a member within it. */
 const MEMBER_SEP = "#";

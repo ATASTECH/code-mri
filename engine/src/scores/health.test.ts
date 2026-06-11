@@ -1,4 +1,4 @@
-import type { Issue } from "@code-mri/shared-types";
+import type { Issue } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { computeHealth } from "./health.js";
 

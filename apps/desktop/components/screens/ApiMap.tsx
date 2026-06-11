@@ -1,4 +1,4 @@
-import type { Report } from "@code-mri/shared-types"
+import type { Report } from "@code-mri/engine"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {

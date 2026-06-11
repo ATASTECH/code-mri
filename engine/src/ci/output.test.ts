@@ -1,4 +1,4 @@
-import type { Report, ReportDiff } from "@code-mri/shared-types";
+import type { Report, ReportDiff } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { formatCiMarkdown } from "./markdown.js";
 import { formatSarif } from "./sarif.js";

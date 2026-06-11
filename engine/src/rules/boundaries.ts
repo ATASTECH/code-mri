@@ -1,4 +1,4 @@
-import type { EdgeKind, GraphEdge, GraphNode, Issue } from "@code-mri/shared-types";
+import type { EdgeKind, GraphEdge, GraphNode, Issue } from "../types.js";
 import type { BoundaryConfig, BoundaryRuleConfig } from "../config/codemri.js";
 import { matchesAnyGlob } from "../config/glob.js";
 import type { Graph } from "../graph/graph.js";

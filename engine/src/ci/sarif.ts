@@ -1,4 +1,4 @@
-import type { BreakingChange, GraphNode, Issue, Report } from "@code-mri/shared-types";
+import type { BreakingChange, GraphNode, Issue, Report } from "../types.js";
 import type { CiGateResult } from "./gates.js";
 
 interface SarifResultInput {

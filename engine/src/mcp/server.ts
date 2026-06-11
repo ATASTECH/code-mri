@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import * as path from "node:path";
-import type { ProjectRepoRole, Report } from "@code-mri/shared-types";
+import type { ProjectRepoRole, Report } from "../types.js";
 import {
   askGraph,
   checkBreakingChanges,

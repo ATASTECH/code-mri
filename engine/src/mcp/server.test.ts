@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
-import type { Report } from "@code-mri/shared-types";
+import type { Report } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { createMcpContext, handleMcpRequest } from "./server.js";
 

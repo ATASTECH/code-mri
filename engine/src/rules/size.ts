@@ -1,4 +1,4 @@
-import type { Issue } from "@code-mri/shared-types";
+import type { Issue } from "../types.js";
 import type { Graph } from "../graph/graph.js";
 
 /** Models with an excessive number of fields (REFERENCES out-edges). */
