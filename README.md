@@ -17,10 +17,10 @@
       </td>
       <td align="center" width="120">
         <a href="https://claude.ai/">
-          <img src="https://svgl.app/library/claude-ai-icon.svg" alt="Claude Desktop" height="36" />
+          <img src="https://svgl.app/library/claude-ai-icon.svg" alt="Claude Code" height="36" />
         </a>
         <br />
-        <sub>Claude Desktop</sub>
+        <sub>Claude Code</sub>
       </td>
       <td align="center" width="120">
         <a href="https://www.cursor.com">
@@ -44,6 +44,89 @@
       </td>
     </tr>
   </table>
+  <p><sub>Supported frameworks</sub></p>
+  <table>
+    <tr>
+      <td align="center" width="110">
+        <a href="https://nextjs.org/">
+          <img src="https://svgl.app/library/nextjs_icon_dark.svg" alt="Next.js" height="36" />
+        </a>
+        <br />
+        <sub>Next.js</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://react.dev/">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/react_dark.svg">
+            <img src="https://svgl.app/library/react_light.svg" alt="React" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>React</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://vitejs.dev">
+          <img src="https://svgl.app/library/vite.svg" alt="Vite" height="36" />
+        </a>
+        <br />
+        <sub>Vite</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://reactrouter.com/en/main">
+          <img src="https://svgl.app/library/reactrouter.svg" alt="React Router" height="36" />
+        </a>
+        <br />
+        <sub>React Router</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://expressjs.com">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/expressjs_dark.svg">
+            <img src="https://svgl.app/library/expressjs.svg" alt="Express.js" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>Express</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="110">
+        <a href="https://nestjs.com/">
+          <img src="https://svgl.app/library/nestjs.svg" alt="NestJS" height="36" />
+        </a>
+        <br />
+        <sub>NestJS</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://www.djangoproject.com/">
+          <img src="https://svgl.app/library/django.svg" alt="Django" height="36" />
+        </a>
+        <br />
+        <sub>Django</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://fastapi.tiangolo.com/">
+          <img src="https://svgl.app/library/fastapi.svg" alt="FastAPI" height="36" />
+        </a>
+        <br />
+        <sub>FastAPI</sub>
+      </td>
+      <td align="center" width="110">
+        <a href="https://flask.palletsprojects.com/">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/flask-dark.svg">
+            <img src="https://svgl.app/library/flask-light.svg" alt="Flask" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>Flask</sub>
+      </td>
+      <td align="center" width="110">
+        <strong>DRF</strong><br />
+        <sub>+ OpenAPI import</sub>
+      </td>
+    </tr>
+  </table>
 </div>
 
 Local-first codebase intelligence with a local Next.js UI, CLI, CI gates, and
@@ -63,7 +146,7 @@ from the local report.
 
 ## AI Agent MCP Quick Install
 
-For Codex, Claude Desktop, Cursor, Windsurf, or another MCP client, install the
+For Codex, Claude Code, Cursor, Windsurf, or another MCP client, install the
 agent-facing server with the engine package only:
 
 ```bash
@@ -529,7 +612,7 @@ Recommended agent playbook:
 
 ### MCP Client Config
 
-Minimal Codex, Claude Desktop, Cursor, or Windsurf-style config:
+Minimal Codex, Claude Code, Cursor, or Windsurf-style config:
 
 ```json
 {
