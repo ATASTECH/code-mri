@@ -1,4 +1,50 @@
-# Code MRI
+<div align="center">
+  <img src="docs/assets/code-mri-logo.png" alt="Code MRI" width="420" />
+  <h1>Code MRI</h1>
+  <p><strong>Deterministic code intelligence for local coding agents.</strong></p>
+  <p><sub>Supported MCP clients</sub></p>
+  <table>
+    <tr>
+      <td align="center" width="120">
+        <a href="https://openai.com/codex/">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/codex_dark.svg">
+            <img src="https://svgl.app/library/codex_light.svg" alt="Codex" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>Codex</sub>
+      </td>
+      <td align="center" width="120">
+        <a href="https://claude.ai/">
+          <img src="https://svgl.app/library/claude-ai-icon.svg" alt="Claude Desktop" height="36" />
+        </a>
+        <br />
+        <sub>Claude Desktop</sub>
+      </td>
+      <td align="center" width="120">
+        <a href="https://www.cursor.com">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/cursor_dark.svg">
+            <img src="https://svgl.app/library/cursor_light.svg" alt="Cursor" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>Cursor</sub>
+      </td>
+      <td align="center" width="120">
+        <a href="https://windsurf.com/editor">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://svgl.app/library/windsurf-dark.svg">
+            <img src="https://svgl.app/library/windsurf-light.svg" alt="Windsurf" height="36" />
+          </picture>
+        </a>
+        <br />
+        <sub>Windsurf</sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
 Local-first codebase intelligence with a local Next.js UI, CLI, CI gates, and
 MCP tools for coding agents. Code MRI scans TypeScript, React, Next.js, Node
