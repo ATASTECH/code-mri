@@ -1,14 +1,25 @@
 # MCP Client Configuration
 
-Use the npm package after publishing:
+Use the npm package. This is the only package an MCP client needs; npm installs
+`@code-mri/shared-types` automatically as an engine dependency.
 
 ```bash
-npx -y @code-mri/engine mcp --allow-scan --state-dir .code-mri
+npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri
 ```
 
 If your client supports `cwd`, set it to the project root you want Code MRI to
 scan. If not, use absolute paths in `--state-dir`, `--config`, and tool
 arguments.
+
+## Codex Desktop
+
+```toml
+[mcp_servers.code-mri]
+command = "npx"
+args = ["-y", "@code-mri/engine@latest", "mcp", "--allow-scan", "--state-dir", ".code-mri"]
+cwd = "/absolute/path/to/project"
+startup_timeout_sec = 120
+```
 
 ## Claude Desktop
 
@@ -19,12 +30,13 @@ arguments.
       "command": "npx",
       "args": [
         "-y",
-        "@code-mri/engine",
+        "@code-mri/engine@latest",
         "mcp",
         "--allow-scan",
         "--state-dir",
         ".code-mri"
-      ]
+      ],
+      "cwd": "/absolute/path/to/project"
     }
   }
 }
@@ -37,7 +49,8 @@ arguments.
   "mcpServers": {
     "code-mri": {
       "command": "npx",
-      "args": ["-y", "@code-mri/engine", "mcp", "--allow-scan", "--state-dir", ".code-mri"]
+      "args": ["-y", "@code-mri/engine@latest", "mcp", "--allow-scan", "--state-dir", ".code-mri"],
+      "cwd": "/absolute/path/to/project"
     }
   }
 }
@@ -50,7 +63,8 @@ arguments.
   "mcpServers": {
     "code-mri": {
       "command": "npx",
-      "args": ["-y", "@code-mri/engine", "mcp", "--allow-scan", "--state-dir", ".code-mri"]
+      "args": ["-y", "@code-mri/engine@latest", "mcp", "--allow-scan", "--state-dir", ".code-mri"],
+      "cwd": "/absolute/path/to/project"
     }
   }
 }

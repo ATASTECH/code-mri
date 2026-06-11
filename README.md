@@ -15,6 +15,54 @@ Code MRI is not an LLM analyzer. The engine is deterministic static analysis.
 AI tools can use the graph through the CLI or MCP server, but the facts come
 from the local report.
 
+## AI Agent MCP Quick Install
+
+For Codex, Claude Desktop, Cursor, Windsurf, or another MCP client, install the
+agent-facing server with the engine package only:
+
+```bash
+npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri
+```
+
+Copy this config into an MCP client and set `cwd` to the project root the agent
+should scan:
+
+```json
+{
+  "mcpServers": {
+    "code-mri": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@code-mri/engine@latest",
+        "mcp",
+        "--allow-scan",
+        "--state-dir",
+        ".code-mri"
+      ],
+      "cwd": "/absolute/path/to/your/project"
+    }
+  }
+}
+```
+
+For Codex Desktop, use this TOML block in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.code-mri]
+command = "npx"
+args = ["-y", "@code-mri/engine@latest", "mcp", "--allow-scan", "--state-dir", ".code-mri"]
+cwd = "/absolute/path/to/your/project"
+startup_timeout_sec = 120
+```
+
+After the server is connected, ask the agent to call `scan_project` for the
+repo, then use `graph_search`, `impact_query`, `get_node_context`, or
+`recommend_tests` before editing code.
+
+You do not install `@code-mri/shared-types` for MCP. It is a dependency used by
+`@code-mri/engine` and the local UI to share the report schema.
+
 ## What It Answers
 
 - If I change this file, component, endpoint, model, or field, what is affected?
@@ -353,10 +401,10 @@ Code MRI includes a first-class MCP stdio server for coding agents. The intended
 workflow is: scan once, keep the report active, then let the agent ask focused
 questions before and after edits.
 
-Start from npm after publishing:
+Start from npm:
 
 ```bash
-npx -y @code-mri/engine mcp --allow-scan --state-dir .code-mri
+npx -y @code-mri/engine@latest mcp --allow-scan --state-dir .code-mri
 ```
 
 Start from this repository:
@@ -419,7 +467,7 @@ operations.
 
 ### MCP Client Config
 
-Minimal Claude Desktop, Cursor, or Windsurf-style config:
+Minimal Codex, Claude Desktop, Cursor, or Windsurf-style config:
 
 ```json
 {
@@ -428,12 +476,13 @@ Minimal Claude Desktop, Cursor, or Windsurf-style config:
       "command": "npx",
       "args": [
         "-y",
-        "@code-mri/engine",
+        "@code-mri/engine@latest",
         "mcp",
         "--allow-scan",
         "--state-dir",
         ".code-mri"
-      ]
+      ],
+      "cwd": "/absolute/path/to/project"
     }
   }
 }
@@ -466,9 +515,10 @@ See [docs/mcp-server.md](docs/mcp-server.md) and
 
 Publishable packages:
 
-- `@code-mri/shared-types`: shared graph, report, issue, diff, and insight
-  contracts.
 - `@code-mri/engine`: public CLI, engine API, CI helpers, and MCP server.
+- `@code-mri/shared-types`: shared graph, report, issue, diff, and insight
+  contracts used by the engine and local UI. Users and agents normally do not
+  install this package directly.
 
 The engine package exposes:
 
