@@ -11,6 +11,27 @@ If your client supports `cwd`, set it to the project root you want Code MRI to
 scan. If not, use absolute paths in `--state-dir`, `--config`, and tool
 arguments.
 
+## Agent Instruction Snippet
+
+Paste this into an AI coding agent that has the Code MRI MCP server connected:
+
+```text
+Use Code MRI before reading broad source. If a report is active, use it;
+otherwise call scan_project for this repo. Before editing, call
+prepare_edit_context with the user task and a tokenBudget. Read only returned
+mustRead windows via read_windows. Call review_planned_change before changing
+files. After edits, call review_diff, then recommend_tests and run the returned
+commands. Start with detail=brief and request standard/full only when
+resultStats or nextQueries says context was omitted.
+```
+
+Fallback for older Code MRI versions without Phase 16 tools:
+
+```text
+Use scan_project/load_report, then ask_graph or graph_search, then impact_query,
+get_node_context, and recommend_tests before editing.
+```
+
 ## Codex Desktop
 
 ```toml

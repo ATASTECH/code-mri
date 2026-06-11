@@ -2,8 +2,8 @@
 
 Code MRI MCP is a local-first code intelligence server for coding agents. It
 scans a project, keeps a deterministic code graph in memory, and answers impact,
-context, risk, and verification questions without sending source code to a
-remote service.
+context, risk, and verification questions without sending broad source code to a
+remote model.
 
 ## Install
 
@@ -37,15 +37,22 @@ The default state layout is:
 Typical agent flow:
 
 1. Call `scan_project` with `{ "path": "." }`.
-2. Ask `impact_query` before editing a file or symbol.
-3. Use `get_node_context` for local incoming/outgoing graph edges.
-4. Use `recommend_tests` after planning the edit.
-5. Run `scan_project` again and compare with a baseline when needed.
+2. Call `prepare_edit_context` with the user task and a `tokenBudget`.
+3. Call `read_windows` only for returned `mustRead` windows.
+4. Call `review_planned_change` before editing.
+5. After edits, call `review_diff`.
+6. Call `recommend_tests` and run the returned commands.
 
 ## Tools
 
 - `scan_project` — opt-in live scan; updates active MCP report.
 - `load_report` — loads an existing report JSON into active context.
+- `prepare_edit_context` — returns must-read line windows, impacts, risks,
+  verification commands, and next tool calls for a task.
+- `read_windows` — reads only bounded line windows. Secret candidates are
+  redacted; use `mode="locations"` when source should stay omitted.
+- `review_planned_change` — checks a planned edit before files are modified.
+- `review_diff` — checks changed files or unified diff text after editing.
 - `graph_search` — searches graph nodes by path, id, name, and naming variants.
 - `impact_query` — returns impacted nodes; file nodes expand to contained symbols.
 - `get_node_context` — returns a node, direct edges, and attached issues.
@@ -54,8 +61,35 @@ Typical agent flow:
 - `ask_graph` — routes natural language to a deterministic graph tool.
 - `recommend_tests` — suggests focused test/typecheck/build commands.
 
-Every tool returns structured content with `confidence`, source `loc`, and
-evidence where available.
+Every tool returns structured content with `confidence`, source `loc`, compact
+`resultStats`, and evidence where available.
+
+## Token Budget Mode
+
+The default MCP text response is a short summary. Full data is returned in
+`structuredContent`, so clients do not need to feed duplicate JSON text back into
+the model. Use `--mcp-text-mode json` only for older clients that parse
+`content.text` as JSON.
+
+Most query tools accept these fields:
+
+- `detail`: `brief`, `standard`, or `full`; default is `brief`.
+- `tokenBudget`: approximate result budget for the agent step.
+- `includeEvidence`: include or suppress evidence strings.
+- `limit`: hard result count cap.
+
+When a result is truncated, `resultStats.omitted` and `nextQueries` tell the
+agent what to ask next. The intended pattern is incremental: start brief, read
+only returned windows, then ask for more detail only when needed.
+
+`read_windows` returns bounded source windows by default, not full files. It
+enforces window, line, and character caps, redacts secret candidates, and returns
+a file `sha1` for stale-window detection. Use `mode="outline"` for declaration
+orientation or `mode="locations"` when the agent should see only coordinates.
+
+The MCP test suite keeps the `tools/list` schema footprint under a fixed byte
+budget so tool descriptions and schemas do not become the dominant session cost.
+See [mcp-agent-evals.md](mcp-agent-evals.md) for the agent workflow eval set.
 
 ## Project Fit
 

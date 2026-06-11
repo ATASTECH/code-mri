@@ -56,9 +56,9 @@ cwd = "/absolute/path/to/your/project"
 startup_timeout_sec = 120
 ```
 
-After the server is connected, ask the agent to call `scan_project` for the
-repo, then use `graph_search`, `impact_query`, `get_node_context`, or
-`recommend_tests` before editing code.
+After the server is connected, ask the agent to use the context-router flow:
+`scan_project` -> `prepare_edit_context` -> `read_windows` ->
+`review_planned_change` -> edit -> `review_diff` -> `recommend_tests`.
 
 You do not install a second Code MRI package for MCP. The report schema types
 are exported from `@code-mri/engine`.
@@ -397,8 +397,9 @@ SQLite path resolution:
 ## MCP Server
 
 Code MRI includes a first-class MCP stdio server for coding agents. The intended
-workflow is: scan once, keep the report active, then let the agent ask focused
-questions before and after edits.
+workflow is: scan once, keep the report active, then let the agent ask for a
+token-budgeted edit context instead of reading broad source files into the
+model.
 
 Start from npm:
 
@@ -448,6 +449,12 @@ local agents that should refresh the graph while working.
 - `scan_project`: opt-in live scan; updates the active report and can write it
   to state.
 - `load_report`: loads an existing report JSON into the active MCP context.
+- `prepare_edit_context`: returns must-read line windows, impacts, risks,
+  tests, and next tool calls for a planned task.
+- `read_windows`: returns bounded source line windows; secret candidates are
+  redacted and `mode="locations"` can be used when source should stay omitted.
+- `review_planned_change`: checks an edit plan before code changes.
+- `review_diff`: checks changed files or unified diff text after code changes.
 - `graph_search`: searches nodes by id, name, source file, and naming variants.
 - `impact_query`: returns impacted nodes for a file or symbol; file queries
   expand to contained symbols and direct importers.
@@ -459,10 +466,20 @@ local agents that should refresh the graph while working.
 - `recommend_tests`: suggests focused test/typecheck/build commands as data.
 
 All tools return structured MCP content. Result schemas include `tool`, `plan`,
-`confidence`, `loc`, and `message`; node, edge, issue, and test-command records
-carry source locations and evidence where available. Tools also publish MCP
-annotations so clients can distinguish read-only graph queries from opt-in scan
-operations.
+`confidence`, `loc`, `message`, `resultStats`, and optional `nextQueries`. By
+default, `content.text` is a short summary and full data is in
+`structuredContent`; use `--mcp-text-mode json` only for clients that parse text
+JSON. Query tools accept `detail`, `tokenBudget`, `includeEvidence`, and `limit`
+so agents can start brief and request fuller detail only when needed.
+
+Recommended agent playbook:
+
+1. `scan_project` or `load_report`.
+2. `prepare_edit_context` with the user task and a token budget.
+3. `read_windows` for returned `mustRead` windows only.
+4. `review_planned_change` before editing.
+5. `review_diff` after editing.
+6. `recommend_tests`, then run the returned commands.
 
 ### MCP Client Config
 
@@ -523,7 +540,7 @@ The engine package exposes:
 - package export: `@code-mri/engine`
 - diff export: `@code-mri/engine/diff`
 
-Older `@code-mri/shared-types` releases are legacy; consumers should import
+Older `@code-mri/shared-types` releases are deprecated; consumers should import
 report and graph types from `@code-mri/engine`.
 
 Publishing checklist lives in [docs/publishing.md](docs/publishing.md).
@@ -607,6 +624,7 @@ See [docs/limitations.md](docs/limitations.md) for the detailed list.
 
 ## Status
 
-The local roadmap through agent/MCP integration is implemented. Remaining
-release work is operational: versioning, npm authentication, tag/release notes,
-and public post-publish smoke tests.
+The local roadmap through agent/MCP integration is implemented. Current work is
+Phase 16: turning MCP into a token-budgeted agent context router so AI agents
+can inspect impact, context, and tests without reading the whole repo into the
+model.

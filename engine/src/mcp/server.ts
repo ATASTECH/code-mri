@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import * as path from "node:path";
@@ -7,11 +8,17 @@ import {
   checkBreakingChanges,
   createAgentQueryContext,
   findDeadCode,
+  finalizeAgentResult,
   getNodeContext,
   graphSearch,
   impactQuery,
+  prepareEditContext,
+  readWindows,
   recommendTests,
+  reviewDiff,
+  reviewPlannedChange,
   type AgentQueryContext,
+  type AgentToolResult,
 } from "../agent/index.js";
 import { analyzeProject } from "../pipeline/analyze.js";
 import { analyzeProjectRepos, type ProjectRepoInput } from "../pipeline/analyzeRepos.js";
@@ -33,83 +40,24 @@ interface JsonRpcResponse {
   error?: { code: number; message: string };
 }
 
-const LOC_SCHEMA = {
-  type: ["object", "null"],
-  properties: {
-    file: { type: "string" },
-    line: { type: "number" },
-    column: { type: "number" },
-  },
-};
-
-const NODE_REF_SCHEMA = {
-  type: "object",
-  required: ["id", "kind", "name", "loc", "confidence", "evidence"],
-  properties: {
-    id: { type: "string" },
-    kind: { type: "string" },
-    name: { type: "string" },
-    loc: LOC_SCHEMA,
-    confidence: { type: "string", enum: ["high", "medium", "low"] },
-    evidence: { type: "array", items: { type: "string" } },
-  },
-};
-
-const ISSUE_REF_SCHEMA = {
-  type: "object",
-  required: ["kind", "severity", "message", "nodes", "loc", "confidence", "evidence"],
-  properties: {
-    kind: { type: "string" },
-    severity: { type: "string" },
-    message: { type: "string" },
-    nodes: { type: "array", items: NODE_REF_SCHEMA },
-    loc: LOC_SCHEMA,
-    confidence: { type: "string", enum: ["high", "medium", "low"] },
-    evidence: { type: "array", items: { type: "string" } },
-  },
-};
-
-const EDGE_REF_SCHEMA = {
-  type: "object",
-  required: ["id", "kind", "from", "to", "confidence", "loc", "evidence"],
-  properties: {
-    id: { type: "string" },
-    kind: { type: "string" },
-    from: { ...NODE_REF_SCHEMA, type: ["object", "null"] },
-    to: { ...NODE_REF_SCHEMA, type: ["object", "null"] },
-    confidence: { type: "string", enum: ["high", "medium", "low"] },
-    loc: LOC_SCHEMA,
-    evidence: { type: "array", items: { type: "string" } },
-  },
-};
-
-const TEST_COMMAND_SCHEMA = {
-  type: "object",
-  required: ["command", "reason", "confidence", "loc"],
-  properties: {
-    command: { type: "string" },
-    reason: { type: "string" },
-    confidence: { type: "string", enum: ["high", "medium", "low"] },
-    loc: LOC_SCHEMA,
-  },
-};
-
 const AGENT_RESULT_REQUIRED = ["tool", "plan", "confidence", "loc", "message"];
+
+const COMMON_CONTEXT_PROPERTIES = {
+  detail: { type: "string", enum: ["brief", "standard", "full"] },
+  tokenBudget: { type: "number" },
+  includeEvidence: { type: "boolean" },
+  cursor: { type: "string" },
+};
 
 const AGENT_RESULT_SCHEMA = {
   type: "object",
   required: AGENT_RESULT_REQUIRED,
+  additionalProperties: true,
   properties: {
     tool: { type: "string" },
     plan: { type: "array", items: { type: "string" } },
     confidence: { type: "string", enum: ["high", "medium", "low"] },
-    loc: LOC_SCHEMA,
-    nodes: { type: "array", items: NODE_REF_SCHEMA },
-    candidates: { type: "array", items: NODE_REF_SCHEMA },
-    edges: { type: "array", items: EDGE_REF_SCHEMA },
-    issues: { type: "array", items: ISSUE_REF_SCHEMA },
-    breakingChanges: { type: "array", items: ISSUE_REF_SCHEMA },
-    testCommands: { type: "array", items: TEST_COMMAND_SCHEMA },
+    loc: { type: ["object", "null"] },
     message: { type: "string" },
   },
 };
@@ -132,7 +80,7 @@ const SCAN_RESULT_SCHEMA = {
   required: [...AGENT_RESULT_REQUIRED, "activeReport", "diff"],
   properties: {
     ...AGENT_RESULT_SCHEMA.properties,
-    activeReport: ACTIVE_REPORT_SCHEMA,
+    activeReport: { type: "object" },
     diff: { type: ["object", "null"] },
   },
 };
@@ -145,6 +93,7 @@ const TOOL_SCHEMAS = [
     inputSchema: {
       type: "object",
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         nodeId: { type: "string" },
         query: { type: "string" },
         limit: { type: "number" },
@@ -160,6 +109,7 @@ const TOOL_SCHEMAS = [
       type: "object",
       required: ["query"],
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         query: { type: "string" },
         kinds: { type: "array", items: { type: "string" } },
         limit: { type: "number" },
@@ -174,6 +124,7 @@ const TOOL_SCHEMAS = [
     inputSchema: {
       type: "object",
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         confidence: { type: "string", enum: ["high", "medium", "low"] },
         limit: { type: "number" },
       },
@@ -184,7 +135,7 @@ const TOOL_SCHEMAS = [
     name: "check_breaking_changes",
     description: "Return BREAKING_* issues and baseline diff breaking changes when a baseline report is provided.",
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-    inputSchema: { type: "object", properties: { limit: { type: "number" } } },
+    inputSchema: { type: "object", properties: { ...COMMON_CONTEXT_PROPERTIES, limit: { type: "number" } } },
     outputSchema: AGENT_RESULT_SCHEMA,
   },
   {
@@ -194,6 +145,7 @@ const TOOL_SCHEMAS = [
     inputSchema: {
       type: "object",
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         nodeId: { type: "string" },
         query: { type: "string" },
         limit: { type: "number" },
@@ -209,6 +161,7 @@ const TOOL_SCHEMAS = [
       type: "object",
       required: ["question"],
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         question: { type: "string" },
         limit: { type: "number" },
       },
@@ -216,9 +169,10 @@ const TOOL_SCHEMAS = [
     outputSchema: {
       type: "object",
       required: [...AGENT_RESULT_REQUIRED, "result"],
+      additionalProperties: true,
       properties: {
         ...AGENT_RESULT_SCHEMA.properties,
-        result: AGENT_RESULT_SCHEMA,
+        result: { type: "object", additionalProperties: true },
       },
     },
   },
@@ -229,10 +183,78 @@ const TOOL_SCHEMAS = [
     inputSchema: {
       type: "object",
       properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
         nodeId: { type: "string" },
         query: { type: "string" },
         files: { type: "array", items: { type: "string" } },
         limit: { type: "number" },
+      },
+    },
+    outputSchema: AGENT_RESULT_SCHEMA,
+  },
+  {
+    name: "prepare_edit_context",
+    description: "Prepare a token-budgeted edit plan: must-read line windows, impacts, risks, tests, and next tool calls.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    inputSchema: {
+      type: "object",
+      required: ["task"],
+      properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
+        task: { type: "string" },
+        files: { type: "array", items: { type: "string" } },
+        nodeIds: { type: "array", items: { type: "string" } },
+        maxFiles: { type: "number" },
+        maxWindows: { type: "number" },
+      },
+    },
+    outputSchema: AGENT_RESULT_SCHEMA,
+  },
+  {
+    name: "read_windows",
+    description: "Return bounded source line windows. Use mode=locations for coordinates only; secret candidates are redacted.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    inputSchema: {
+      type: "object",
+      required: ["windows"],
+      properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
+        windows: { type: "array", items: { type: "object" } },
+        mode: { type: "string", enum: ["source", "locations", "outline"] },
+        includeSource: { type: "boolean" },
+        maxWindows: { type: "number" },
+        maxLines: { type: "number" },
+        maxChars: { type: "number" },
+      },
+    },
+    outputSchema: AGENT_RESULT_SCHEMA,
+  },
+  {
+    name: "review_planned_change",
+    description: "Review an agent's planned change before editing and return blocking risks, checks, and verification commands.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    inputSchema: {
+      type: "object",
+      required: ["plan"],
+      properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
+        plan: { type: "string" },
+        files: { type: "array", items: { type: "string" } },
+        nodeIds: { type: "array", items: { type: "string" } },
+      },
+    },
+    outputSchema: AGENT_RESULT_SCHEMA,
+  },
+  {
+    name: "review_diff",
+    description: "Review changed files or a unified diff against the active graph and return risk and test guidance.",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...COMMON_CONTEXT_PROPERTIES,
+        diffText: { type: "string" },
+        files: { type: "array", items: { type: "string" } },
       },
     },
     outputSchema: AGENT_RESULT_SCHEMA,
@@ -312,7 +334,11 @@ export interface McpContext {
   agent?: AgentQueryContext;
   allowScan: boolean;
   scanDefaults: McpScanDefaults;
+  textMode: McpTextMode;
+  seenPayloadHashes: Set<string>;
 }
+
+export type McpTextMode = "summary" | "json";
 
 function toolArguments(params: Record<string, unknown> | undefined): Record<string, unknown> {
   const args = params?.arguments;
@@ -344,6 +370,126 @@ function boolArg(args: Record<string, unknown>, key: string): boolean | undefine
 function numberArg(args: Record<string, unknown>, key: string): number | undefined {
   const value = args[key];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function isAgentToolResult(value: unknown): value is AgentToolResult {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      typeof (value as { tool?: unknown }).tool === "string" &&
+      Array.isArray((value as { plan?: unknown }).plan),
+  );
+}
+
+function contentText(result: unknown, mode: McpTextMode): string {
+  if (mode === "json") return JSON.stringify(result);
+  if (!isAgentToolResult(result)) return "Code MRI MCP result ready.";
+  const stats = (result as { resultStats?: { estimatedTokens?: number; omitted?: Record<string, number> } }).resultStats;
+  const omitted = stats?.omitted
+    ? Object.entries(stats.omitted)
+        .filter(([, count]) => count > 0)
+        .map(([key, count]) => `${count} ${key}`)
+        .join(", ")
+    : "";
+  const lines = [
+    result.message ?? `${result.tool} completed.`,
+    `tool=${result.tool}`,
+    `confidence=${result.confidence}`,
+    stats?.estimatedTokens ? `estimatedTokens=${stats.estimatedTokens}` : "",
+    omitted ? `omitted=${omitted}` : "",
+  ]
+    .filter(Boolean);
+
+  const nodeRows = [
+    ...((result.nodes ?? []).map((node) => ["node", node.id, node.kind, node.loc?.file ?? "", node.confidence])),
+    ...((result.candidates ?? []).map((node) => ["candidate", node.id, node.kind, node.loc?.file ?? "", node.confidence])),
+    ...((result.impacts ?? []).map((node) => ["impact", node.id, node.kind, node.loc?.file ?? "", node.confidence])),
+  ].slice(0, 12);
+  if (nodeRows.length) {
+    lines.push("kind\tid\tnodeKind\tfile\tconfidence", ...nodeRows.map((row) => row.join("\t")));
+  }
+
+  const issueRows = [
+    ...((result.issues ?? []).map((issue) => ["issue", issue.kind, issue.severity, issue.loc?.file ?? "", issue.message])),
+    ...((result.risks ?? []).map((issue) => ["risk", issue.kind, issue.severity, issue.loc?.file ?? "", issue.message])),
+    ...((result.breakingChanges ?? []).map((issue) => ["breaking", issue.kind, issue.severity, issue.loc?.file ?? "", issue.message])),
+  ].slice(0, 8);
+  if (issueRows.length) {
+    lines.push("kind\tissueKind\tseverity\tfile\tmessage", ...issueRows.map((row) => row.join("\t")));
+  }
+
+  const testRows = [...(result.testCommands ?? []), ...(result.testPlan ?? []), ...(result.verificationCommands ?? [])]
+    .slice(0, 8)
+    .map((command) => ["test", command.confidence, command.command, command.reason]);
+  if (testRows.length) {
+    lines.push("kind\tconfidence\tcommand\treason", ...testRows.map((row) => row.join("\t")));
+  }
+
+  return lines.join("\n");
+}
+
+const DEDUPE_ARRAY_KEYS = [
+  "nodes",
+  "candidates",
+  "impacts",
+  "edges",
+  "issues",
+  "risks",
+  "breakingChanges",
+  "windows",
+] as const;
+
+function payloadHash(value: unknown): string {
+  return createHash("sha1").update(JSON.stringify(value)).digest("hex");
+}
+
+function dedupeItem(item: unknown, hash: string): unknown {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+  const obj = item as Record<string, unknown>;
+  const out: Record<string, unknown> = {
+    deduped: true,
+    hash,
+  };
+  for (const key of ["id", "kind", "name", "loc", "file", "startLine", "endLine", "confidence", "severity", "message"]) {
+    if (key in obj) out[key] = obj[key];
+  }
+  return out;
+}
+
+function dedupeStructuredContent(ctx: McpContext, result: AgentToolResult): AgentToolResult {
+  const alreadySeen = new Set(ctx.seenPayloadHashes);
+  let deduped = 0;
+  const out = { ...result } as AgentToolResult & Record<string, unknown>;
+  const record = out as Record<string, unknown>;
+
+  for (const key of DEDUPE_ARRAY_KEYS) {
+    const value = record[key];
+    if (!Array.isArray(value)) continue;
+    record[key] = value.map((item) => {
+      const hash = payloadHash(item);
+      if (alreadySeen.has(hash)) {
+        deduped += 1;
+        return dedupeItem(item, hash);
+      }
+      ctx.seenPayloadHashes.add(hash);
+      return item;
+    });
+  }
+
+  if (out.result) out.result = dedupeStructuredContent(ctx, out.result);
+  if (deduped > 0) {
+    out.resultStats = {
+      ...(out.resultStats ?? {
+        detail: "brief",
+        returned: {},
+        omitted: {},
+        responseBytes: 0,
+        estimatedTokens: 0,
+      }),
+      deduped,
+    } as AgentToolResult["resultStats"] & { deduped: number };
+  }
+  return out;
 }
 
 const ROLES = new Set<ProjectRepoRole>(["frontend", "backend", "fullstack", "worker", "other"]);
@@ -431,6 +577,7 @@ async function scanProjectTool(ctx: McpContext, args: Record<string, unknown>): 
         ).report;
 
   ctx.agent = createAgentQueryContext(report, previous);
+  ctx.seenPayloadHashes.clear();
 
   const reportPath = stringArg(args, "reportPath") ?? ctx.scanDefaults.reportPath;
   if (reportPath) writeJson(reportPath, report);
@@ -459,6 +606,7 @@ async function loadReportTool(ctx: McpContext, args: Record<string, unknown>): P
   const report = readReport(reportPath);
   const baseline = baselinePath ? readReport(baselinePath) : undefined;
   ctx.agent = createAgentQueryContext(report, baseline);
+  ctx.seenPayloadHashes.clear();
   return {
     tool: "load_report",
     plan: ["Read report JSON from disk", "Set report as active MCP context"],
@@ -482,18 +630,24 @@ async function callTool(ctx: McpContext, name: string, args: Record<string, unkn
   if (name === "get_node_context") return getNodeContext(agent, args);
   if (name === "ask_graph") return askGraph(agent, args as { question: string });
   if (name === "recommend_tests") return recommendTests(agent, args);
+  if (name === "prepare_edit_context") return prepareEditContext(agent, args as { task: string });
+  if (name === "read_windows") return readWindows(agent, args as { windows: never[] });
+  if (name === "review_planned_change") return reviewPlannedChange(agent, args as { plan: string });
+  if (name === "review_diff") return reviewDiff(agent, args);
   throw new Error(`Unknown Code MRI MCP tool: ${name}`);
 }
 
 export function createMcpContext(
   report?: Report,
   baseline?: Report,
-  opts: { allowScan?: boolean; scanDefaults?: McpScanDefaults } = {},
+  opts: { allowScan?: boolean; scanDefaults?: McpScanDefaults; textMode?: McpTextMode } = {},
 ): McpContext {
   return {
     ...(report ? { agent: createAgentQueryContext(report, baseline) } : {}),
     allowScan: opts.allowScan ?? false,
     scanDefaults: opts.scanDefaults ?? {},
+    textMode: opts.textMode ?? "summary",
+    seenPayloadHashes: new Set<string>(),
   };
 }
 
@@ -532,12 +686,18 @@ export async function handleMcpRequest(
       const name = request.params?.name;
       if (typeof name !== "string") throw new Error("tools/call requires params.name");
       const result = await callTool(ctx, name, toolArguments(request.params));
+      const structuredContent = isAgentToolResult(result)
+        ? dedupeStructuredContent(
+            ctx,
+            result.resultStats ? result : finalizeAgentResult(result, toolArguments(request.params)),
+          )
+        : result;
       return {
         jsonrpc: "2.0",
         id: request.id ?? null,
         result: {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-          structuredContent: result,
+          content: [{ type: "text", text: contentText(structuredContent, ctx.textMode) }],
+          structuredContent,
         },
       };
     }
@@ -570,12 +730,14 @@ export function startMcpServer(input: {
   baseline?: Report;
   allowScan?: boolean;
   scanDefaults?: McpScanDefaults;
+  textMode?: McpTextMode;
   stdin?: NodeJS.ReadableStream;
   stdout?: NodeJS.WritableStream;
 }): void {
   const ctx = createMcpContext(input.report, input.baseline, {
     allowScan: input.allowScan,
     scanDefaults: input.scanDefaults,
+    textMode: input.textMode,
   });
   const stdin = input.stdin ?? process.stdin;
   const stdout = input.stdout ?? process.stdout;

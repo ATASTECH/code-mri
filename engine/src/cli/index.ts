@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
 import type { ProjectRepoRole, Report } from "../types.js";
-import { askGraph, createAgentQueryContext } from "../agent/index.js";
+import { askGraph, createAgentQueryContext, reviewDiff } from "../agent/index.js";
 import { evaluateCiGates, formatCiMarkdown, formatSarif } from "../ci/index.js";
 import { loadCodeMriConfig } from "../config/codemri.js";
 import {
@@ -385,6 +385,35 @@ program
   });
 
 program
+  .command("review-diff")
+  .description("review changed files or diff text against a Code MRI report")
+  .requiredOption("--report <file>", "Code MRI report JSON; no scan is performed")
+  .option("--baseline <file>", "optional baseline report JSON")
+  .option("--file <file>", "changed file to review; repeatable", collectRepo, [])
+  .option("--diff <file>", "unified diff text file; omit to inspect git diff from the report root")
+  .option("--json", "write the structured result as JSON")
+  .action((opts: { report: string; baseline?: string; file: string[]; diff?: string; json?: boolean }) => {
+    const report = readReport(opts.report);
+    const baseline = opts.baseline ? readReport(opts.baseline) : undefined;
+    const result = reviewDiff(createAgentQueryContext(report, baseline), {
+      files: opts.file,
+      ...(opts.diff ? { diffText: readFileSync(path.resolve(opts.diff), "utf8") } : {}),
+    });
+
+    if (opts.json) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
+
+    process.stdout.write(`Code MRI review-diff — ${report.project.name}\n`);
+    process.stdout.write(`Safe to proceed: ${result.safeToProceed ? "yes" : "no"}\n`);
+    process.stdout.write(`${result.message ?? ""}\n`);
+    for (const command of result.verificationCommands ?? []) {
+      process.stdout.write(`- ${command.command} — ${command.reason}\n`);
+    }
+  });
+
+program
   .command("mcp")
   .description("start an MCP stdio server for agent graph tools")
   .option("--report <file>", "optional Code MRI report JSON to load as the active context")
@@ -400,6 +429,7 @@ program
   .option("--no-git", "skip git churn collection by default for scan_project")
   .option("--max-git-commits <n>", "default maximum git commits to inspect for scan_project", "500")
   .option("--no-cache", "bypass persistent incremental cache by default for scan_project")
+  .option("--mcp-text-mode <mode>", "tools/call text content mode: summary or json", "summary")
   .action((opts: {
     report?: string;
     baseline?: string;
@@ -414,6 +444,7 @@ program
     git?: boolean;
     maxGitCommits?: string;
     cache?: boolean;
+    mcpTextMode?: string;
   }) => {
     if (!opts.report && !opts.allowScan) {
       throw new Error("code-mri mcp requires --report unless --allow-scan is set");
@@ -428,6 +459,7 @@ program
       report,
       baseline,
       allowScan: Boolean(opts.allowScan),
+      textMode: opts.mcpTextMode === "json" ? "json" : "summary",
       scanDefaults: {
         ...(opts.allowScan
           ? {

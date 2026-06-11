@@ -1,3 +1,6 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import * as path from "node:path";
 import type { Report } from "../types.js";
 import { describe, expect, test } from "vitest";
 import { nodeId } from "../ids.js";
@@ -10,7 +13,11 @@ import {
   graphSearch,
   impactQuery,
   planGraphQuestion,
+  prepareEditContext,
+  readWindows,
   recommendTests,
+  reviewDiff,
+  tokenSavingsReport,
 } from "./query.js";
 
 const MODEL_FILE = nodeId("File", "backend/users/models.py");
@@ -120,6 +127,31 @@ describe("agent report query tools", () => {
     });
   });
 
+  test("paginates public graph helper results and preserves follow-up arguments", () => {
+    const ctx = createAgentQueryContext(
+      report({
+        nodes: Array.from({ length: 12 }, (_, index) => ({
+          id: `Component:src/App${index}.tsx#App${index}`,
+          kind: "Component",
+          name: `App${index}`,
+          loc: { file: `src/App${index}.tsx`, line: 1 },
+        })),
+      }),
+    );
+
+    const first = graphSearch(ctx, { query: "App", limit: 4 });
+    expect(first.nodes).toHaveLength(4);
+    expect(first.resultStats?.nextCursor).toBe("nodes:4");
+    expect(first.nextQueries?.[0]?.arguments).toMatchObject({
+      query: "App",
+      cursor: "nodes:4",
+      limit: 8,
+    });
+
+    const second = graphSearch(ctx, { query: "App", limit: 4, cursor: "nodes:4" });
+    expect(second.nodes?.[0]?.id).not.toBe(first.nodes?.[0]?.id);
+  });
+
   test("expands file-level impact to contained symbols and importer files", () => {
     const result = impactQuery(
       createAgentQueryContext(
@@ -223,6 +255,26 @@ describe("agent report query tools", () => {
     expect(result.plan[0]).toContain("deterministic");
   });
 
+  test("promotes nested ask_graph pagination cursor to top-level stats", () => {
+    const ctx = createAgentQueryContext(
+      report({
+        nodes: Array.from({ length: 12 }, (_, index) => ({
+          id: `Component:src/App${index}.tsx#App${index}`,
+          kind: "Component",
+          name: `App${index}`,
+          loc: { file: `src/App${index}.tsx`, line: 1 },
+        })),
+      }),
+    );
+
+    const result = askGraph(ctx, { question: "App", limit: 4 });
+
+    expect(result.result?.resultStats?.nextCursor).toBe("nodes:4");
+    expect(result.resultStats?.nextCursor).toBe("nodes:4");
+    expect(result.nextQueries?.[0]?.tool).toBe("graph_search");
+    expect(result.nextQueries?.[0]?.arguments).toMatchObject({ query: "App", cursor: "nodes:4" });
+  });
+
   test("uses a baseline report for breaking-change checks", () => {
     const before = report();
     const after = report({
@@ -237,5 +289,189 @@ describe("agent report query tools", () => {
       confidence: "high",
       loc: { file: "backend/users/models.py", line: 3 },
     });
+  });
+
+  test("prepares token-budgeted edit context without reading source", () => {
+    const result = prepareEditContext(createAgentQueryContext(report()), {
+      task: "change email field behavior",
+      files: ["backend/users/models.py"],
+      tokenBudget: 1200,
+    });
+
+    expect(result.mustRead?.[0]).toMatchObject({
+      file: "backend/users/models.py",
+      reason: expect.stringContaining("change email field behavior"),
+    });
+    expect(result.impacts?.map((node) => node.id)).toEqual(expect.arrayContaining([HOOK, PAGE]));
+    expect(result.testPlan?.map((item) => item.command)).toContain("git diff --check");
+    expect(result.nextQueries?.map((item) => item.tool)).toContain("read_windows");
+  });
+
+  test("uses high-risk issue messages when preparing edit context", () => {
+    const result = prepareEditContext(
+      createAgentQueryContext(
+        report({
+          issues: [
+            ...report().issues,
+            {
+              kind: "BOUNDARY_VIOLATION",
+              severity: "high",
+              message: "Danger boundary around users page",
+              nodes: [PAGE],
+            },
+          ],
+        }),
+      ),
+      { task: "danger boundary", tokenBudget: 1200 },
+    );
+
+    expect(result.mustRead?.map((window) => window.file)).toContain("frontend/pages/users.tsx");
+    expect(result.mustRead?.find((window) => window.file === "frontend/pages/users.tsx")?.reasonCode).toBe(
+      "breaking-risk",
+    );
+    expect(result.risks?.map((issue) => issue.kind)).toContain("BOUNDARY_VIOLATION");
+  });
+
+  test("uses hotspot signals when preparing edit context", () => {
+    const result = prepareEditContext(
+      createAgentQueryContext(
+        report({
+          insights: {
+            churn: [],
+            coverage: [],
+            secrets: [],
+            explanations: [],
+            dependencyAudit: { status: "not_run", reason: "test" },
+            hotspots: [
+              {
+                nodeId: HOOK,
+                kind: "Hook",
+                name: "User hot path",
+                file: "frontend/hooks/useUsers.ts",
+                churn: 5,
+                authors: 2,
+                complexity: 8,
+                fanIn: 1,
+                fanOut: 3,
+                impact: 4,
+                score: 99,
+              },
+            ],
+          },
+        }),
+      ),
+      { task: "user hot path", tokenBudget: 1200 },
+    );
+
+    expect(result.mustRead?.map((window) => window.file)).toContain("frontend/hooks/useUsers.ts");
+    expect(result.mustRead?.find((window) => window.file === "frontend/hooks/useUsers.ts")?.reasonCode).toBe(
+      "hotspot",
+    );
+  });
+
+  test("reads bounded source windows only when source is requested and redacts secret lines", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "code-mri-agent-"));
+    try {
+      const src = path.join(root, "src");
+      mkdirSync(src, { recursive: true });
+      writeFileSync(
+        path.join(src, "config.ts"),
+        [
+          "export const ok = true;",
+          "const token = 'ghp_123456789012345678901234567890abcd';",
+          "export const done = true;",
+        ].join("\n"),
+      );
+      const ctx = createAgentQueryContext(
+        report({
+          project: { name: "demo", root, stack: ["typescript"] },
+          nodes: [
+            {
+              id: "File:src/config.ts",
+              kind: "File",
+              name: "src/config.ts",
+              loc: { file: "src/config.ts" },
+            },
+          ],
+          insights: {
+            churn: [],
+            coverage: [],
+            hotspots: [],
+            explanations: [],
+            dependencyAudit: { status: "not_run", reason: "test" },
+            secrets: [
+              {
+                file: "src/config.ts",
+                line: 2,
+                column: 15,
+                rule: "github-token",
+                preview: "ghp_...abcd",
+              },
+            ],
+          },
+        }),
+      );
+
+      const locationOnly = readWindows(ctx, {
+        windows: [{ file: "src/config.ts", startLine: 1, endLine: 3, reason: "test", confidence: "high" }],
+        mode: "locations",
+      });
+      expect(locationOnly.windows?.[0]?.source).toBeUndefined();
+
+      const withSource = readWindows(ctx, {
+        windows: [{ file: "src/config.ts", startLine: 1, endLine: 3, reason: "test", confidence: "high" }],
+        maxChars: 1000,
+      });
+      expect(withSource.windows?.[0]?.source).toContain("export const ok");
+      expect(withSource.windows?.[0]?.source).toContain("[REDACTED secret candidate: github-token]");
+      expect(withSource.windows?.[0]?.source).not.toContain("ghp_123456789012345678901234567890abcd");
+      expect(withSource.windows?.[0]?.sha1).toMatch(/^[a-f0-9]{40}$/);
+
+      const budgeted = readWindows(ctx, {
+        windows: [{ file: "src/config.ts", startLine: 1, endLine: 3, reason: "test", confidence: "high" }],
+        tokenBudget: 120,
+      });
+      expect(budgeted.resultStats?.estimatedTokens).toBeLessThanOrEqual(120);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("reviews diffs and estimates window token savings", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "code-mri-agent-"));
+    try {
+      mkdirSync(path.join(root, "engine/src/mcp"), { recursive: true });
+      writeFileSync(path.join(root, "engine/src/mcp/server.ts"), "a\n".repeat(200));
+      const ctx = createAgentQueryContext(
+        report({
+          project: { name: "demo", root, stack: ["typescript"] },
+          nodes: [
+            {
+              id: "File:engine/src/mcp/server.ts",
+              kind: "File",
+              name: "engine/src/mcp/server.ts",
+              loc: { file: "engine/src/mcp/server.ts" },
+            },
+          ],
+        }),
+      );
+
+      const review = reviewDiff(ctx, {
+        diffText: "diff --git a/engine/src/mcp/server.ts b/engine/src/mcp/server.ts\n+++ b/engine/src/mcp/server.ts",
+      });
+      expect(review.safeToProceed).toBe(true);
+      expect(review.verificationCommands?.map((item) => item.command)).toEqual(
+        expect.arrayContaining(["pnpm --filter @code-mri/engine typecheck", "git diff --check"]),
+      );
+
+      const savings = tokenSavingsReport(ctx, {
+        files: ["engine/src/mcp/server.ts"],
+        windows: [{ file: "engine/src/mcp/server.ts", startLine: 1, endLine: 5, reason: "test", confidence: "high" }],
+      });
+      expect(savings.tokenSavings?.avoidedBytes).toBeGreaterThan(0);
+      expect(savings.tokenSavings?.estimatedTokensAvoided).toBeGreaterThan(0);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
